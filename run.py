@@ -9,7 +9,7 @@ import sys
 from data import get_dataloader
 from model import get_tokenizer, get_model
 
-def main(parse_args, configs, valid_fold_index, test_fold_index):
+def main(parse_args, configs):
     torch.cuda.empty_cache()
     curdir_path, result_path, checkpoint_path, log_path, config_path = prepare_saving_dir(parse_args)
     """
@@ -58,19 +58,10 @@ def main(parse_args, configs, valid_fold_index, test_fold_index):
         printl(f"{'=' * 128}", log_path=log_path)
         printl(f'Random seed set to {configs.fix_seed}.', log_path=log_path)
     """
-    Fold Split
-    """
-    printl(f"{'=' * 128}", log_path=log_path)
-    all_folds = [0, 1, 2, 3, 4]
-    train_folds = [fold for fold in all_folds if fold not in [valid_fold_index, test_fold_index]]
-    printl(f"Training Fold Indices: {train_folds}", log_path=log_path)
-    printl(f"Validation Fold Index: {valid_fold_index}", log_path=log_path)
-    printl(f"Test Fold Index: {test_fold_index}", log_path=log_path)
-    """
     Dataloader
     """
     printl(f"{'=' * 128}", log_path=log_path)
-    dataloaders_dict = get_dataloader(configs, valid_fold_index, test_fold_index)
+    dataloaders_dict = get_dataloader(configs)
     printl(f'Number of Steps for Training Data: {len(dataloaders_dict["train"])}', log_path=log_path)
     printl(f'Number of Steps for Validation Data: {len(dataloaders_dict["valid"])}', log_path=log_path)
     printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
@@ -115,12 +106,4 @@ if __name__ == "__main__":
         config_dict = yaml.full_load(file)
         configs = Box(config_dict)
 
-    for i in range(1):
-        valid_fold_index = i
-        if valid_fold_index == 4:
-            test_fold_index = 0
-        else:
-            test_fold_index = valid_fold_index + 1
-        main(parse_args, configs, valid_fold_index, test_fold_index)
-
-
+    main(parse_args, configs)
