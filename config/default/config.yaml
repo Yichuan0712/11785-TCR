@@ -1,6 +1,6 @@
 fix_seed: 42
-description: "ContraTCR by Yichuan"
-dataset: "mini"
+description: "ContraTCR Demo"
+dataset: "pytdc"
 batch_size: 16
 
 model_scheme: "esm2"
