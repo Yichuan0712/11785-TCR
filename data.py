@@ -5,15 +5,22 @@ import pandas as pd
 
 
 class pytdcDataset(Dataset):
-    def __init__(self, dataframe):
+    def __init__(self, dataframe, configs):
         """
         Initializes the dataset object.
         :param dataframe: A DataFrame containing the data to be used in this dataset.
         """
         # Using specific columns for features and labels
-        self.TCR = dataframe['tcr'].values
-        self.epitope = dataframe['epitope_aa'].values
+        TCR = dataframe['tcr'].values
+        epitope = dataframe['epitope_aa'].values
+        label = dataframe['label'].values
 
+        # Storing TCR and epitope based on label
+        self.TCR = TCR[label == 1]
+        self.epitope = epitope[label == 1]
+
+        self.TCR_neg = TCR[label != 1]
+        self.epitope_neg = epitope[label != 1]
     def __len__(self):
         """
         Returns the number of samples in the dataset.
@@ -39,9 +46,9 @@ def get_dataloader(configs):
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
 
         # Create datasets
-        train_dataset = pytdcDataset(train_data)
-        valid_dataset = pytdcDataset(valid_data)
-        test_dataset = pytdcDataset(test_data)
+        train_dataset = pytdcDataset(train_data, configs)
+        valid_dataset = pytdcDataset(valid_data, configs)
+        test_dataset = pytdcDataset(test_data, configs)
 
         # Create dataloaders
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
