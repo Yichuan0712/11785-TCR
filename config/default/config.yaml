@@ -1,5 +1,5 @@
 fix_seed: 42
-description: "ContraTCR Demo"
+description: "ContraTCR Colab Test"
 dataset: "pytdc"
 batch_size: 16
 
