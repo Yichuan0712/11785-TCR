@@ -18,7 +18,7 @@ class pytdcDataset(Dataset):
         """
         Returns the number of samples in the dataset.
         """
-        return len(self.peptide)
+        return len(self.epitope)
 
     def __getitem__(self, idx):
         """
@@ -26,7 +26,7 @@ class pytdcDataset(Dataset):
         :param idx: Index of the data point to retrieve.
         :return: A tuple containing the feature tensor and label tensor.
         """
-        return self.peptide[idx], self.binding_TCR[idx]
+        return self.TCR[idx], self.epitope[idx]
 
 
 def get_dataloader(configs):
