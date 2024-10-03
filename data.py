@@ -11,8 +11,8 @@ class pytdcDataset(Dataset):
         :param dataframe: A DataFrame containing the data to be used in this dataset.
         """
         # Using specific columns for features and labels
-        self.peptide = dataframe['peptide'].values
-        self.binding_TCR = dataframe['binding_TCR'].values
+        self.TCR = dataframe['tcr'].values
+        self.epitope = dataframe['epitope_aa'].values
 
     def __len__(self):
         """
