@@ -69,20 +69,20 @@ def main(parse_args, configs):
     """
     Tokenizer
     """
-    printl(f"{'=' * 128}", log_path=log_path)
-    tokenizer = get_tokenizer(configs)
-    printl("Tokenizer initialization complete.", log_path=log_path)
+    # printl(f"{'=' * 128}", log_path=log_path)
+    # tokenizer = get_tokenizer(configs)
+    # printl("Tokenizer initialization complete.", log_path=log_path)
     """
     Model
     """
-    printl(f"{'=' * 128}", log_path=log_path)
-    encoder = get_model(configs, log_path=log_path)
-    printl("Model initialization complete.", log_path=log_path)
+    # printl(f"{'=' * 128}", log_path=log_path)
+    # encoder = get_model(configs, log_path=log_path)
+    # printl("Model initialization complete.", log_path=log_path)
     return
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='ContraTCR: A tool for training and predicting TCR binding using '
+    parser = argparse.ArgumentParser(description='ContraTCR: A tool for training and predicting TCR-epitope binding using '
                                                  'contrastive learning.')
     parser.add_argument("--config_path", help="Path to the configuration file. Defaults to "
                                               "'./config/default/config.yaml'. This file contains all necessary "
