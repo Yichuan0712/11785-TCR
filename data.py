@@ -50,13 +50,14 @@ def get_dataloader(configs):
         # Create datasets
         train_dataset = pytdcDataset(train_data, configs)
         valid_dataset = pytdcDataset(valid_data, configs)
-        test_dataset = pytdcDataset(test_data, configs)
+        # test_dataset = pytdcDataset(test_data, configs)
 
         # Create dataloaders
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=configs.batch_size, shuffle=False)
-        test_loader = DataLoader(test_dataset, batch_size=configs.batch_size, shuffle=False)
+        # test_loader = DataLoader(test_dataset, batch_size=configs.batch_size, shuffle=False)
 
-        return {'train': train_loader, 'valid': valid_loader, 'test': test_loader}
+        # return {'train': train_loader, 'valid': valid_loader, 'test': test_loader}
+        return {'train': train_loader, 'valid': valid_loader}
     else:
         raise ValueError("Wrong dataset specified.")
