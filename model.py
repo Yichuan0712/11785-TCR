@@ -43,53 +43,53 @@ class ESM2(nn.Module):  # embedding table is fixed
 
         self.esm2, self.alphabet = esm2_dict[configs.encoder_name]
 
-        # self.num_layers = self.esm2.num_layers
-        # for p in self.esm2.parameters():
-        #     p.requires_grad = False
-        #
-        # if configs.adapter_h.enable:
-        #     for name, param in self.esm2.named_parameters():
-        #         if "adapter_layer" in name:
-        #             param.requires_grad = True
-        #
-        # if configs.lora.enable:
-        #     lora_targets = ["self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.out_proj"]
-        #     target_modules = []
-        #     if configs.lora.esm_num_end_lora > 0:
-        #         start_layer_idx = np.max([self.num_layers - configs.lora.esm_num_end_lora, 0])
-        #         for idx in range(start_layer_idx, self.num_layers):
-        #             for layer_name in lora_targets:
-        #                 target_modules.append(f"layers.{idx}.{layer_name}")
-        #
-        #     peft_config = LoraConfig(
-        #         inference_mode=False,
-        #         r=configs.lora.r,
-        #         lora_alpha=configs.lora.alpha,
-        #         target_modules=target_modules,
-        #         lora_dropout=configs.lora.dropout,
-        #         bias="none",
-        #     )
-        #     self.peft_model = get_peft_model(self.esm2, peft_config)
-        #
-        # elif configs.fine_tuning.enable:
-        #     unfix_last_layer = configs.fine_tuning.unfix_last_layer
-        #     fix_layer_num = self.num_layers - unfix_last_layer
-        #     fix_layer_index = 0
-        #     for layer in self.esm2.layers:  # only fine-tune transformer layers, no contact_head and other parameters
-        #         if fix_layer_index < fix_layer_num:
-        #             fix_layer_index += 1  # keep these layers frozen
-        #             continue
-        #
-        #         for p in layer.parameters():
-        #             p.requires_grad = True
-        #
-        #     if unfix_last_layer != 0:  # if need fine-tune last layer, the emb_layer_norm_after for last representation should updated
-        #         for p in self.esm2.emb_layer_norm_after.parameters():
-        #             p.requires_grad = True
-        #
-        # if configs.tune_ESM_table:
-        #     for p in self.esm2.embed_tokens.parameters():
-        #         p.requires_grad = True
+        self.num_layers = self.esm2.num_layers
+        for p in self.esm2.parameters():
+            p.requires_grad = False
+
+        if configs.adapter_h.enable:
+            for name, param in self.esm2.named_parameters():
+                if "adapter_layer" in name:
+                    param.requires_grad = True
+
+        if configs.lora.enable:
+            lora_targets = ["self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.out_proj"]
+            target_modules = []
+            if configs.lora.esm_num_end_lora > 0:
+                start_layer_idx = np.max([self.num_layers - configs.lora.esm_num_end_lora, 0])
+                for idx in range(start_layer_idx, self.num_layers):
+                    for layer_name in lora_targets:
+                        target_modules.append(f"layers.{idx}.{layer_name}")
+
+            peft_config = LoraConfig(
+                inference_mode=False,
+                r=configs.lora.r,
+                lora_alpha=configs.lora.alpha,
+                target_modules=target_modules,
+                lora_dropout=configs.lora.dropout,
+                bias="none",
+            )
+            self.peft_model = get_peft_model(self.esm2, peft_config)
+
+        elif configs.fine_tuning.enable:
+            unfix_last_layer = configs.fine_tuning.unfix_last_layer
+            fix_layer_num = self.num_layers - unfix_last_layer
+            fix_layer_index = 0
+            for layer in self.esm2.layers:  # only fine-tune transformer layers, no contact_head and other parameters
+                if fix_layer_index < fix_layer_num:
+                    fix_layer_index += 1  # keep these layers frozen
+                    continue
+
+                for p in layer.parameters():
+                    p.requires_grad = True
+
+            if unfix_last_layer != 0:  # if need fine-tune last layer, the emb_layer_norm_after for last representation should updated
+                for p in self.esm2.emb_layer_norm_after.parameters():
+                    p.requires_grad = True
+
+        if configs.tune_ESM_table:
+            for p in self.esm2.embed_tokens.parameters():
+                p.requires_grad = True
 
     def forward(self, x):
         return None
