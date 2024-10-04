@@ -23,7 +23,4 @@ lora:
   r: 8
   alpha: 32
   dropout: 0.05
-  resume:
-    enable: False
-    checkpoint_path: path/to/checkpoints.pth
 

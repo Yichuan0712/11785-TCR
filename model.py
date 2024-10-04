@@ -4,14 +4,7 @@ import torch.nn.functional as F
 import esm
 import esm_adapterH
 from peft import PeftModel, LoraConfig, get_peft_model
-
 import numpy as np  # for lora
-
-
-def load_and_add_lora_checkpoint(base_model, lora_checkpoint_path):
-    """Add a pretrained LoRa checkpoint to a base model"""
-    lora_model = PeftModel.from_pretrained(base_model, lora_checkpoint_path)
-    return lora_model
 
 
 class ESM2(nn.Module):  # embedding table is fixed

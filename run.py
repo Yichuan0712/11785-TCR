@@ -33,7 +33,7 @@ def main(parse_args, configs):
     """
     printl(f"{'=' * 128}", log_path=log_path)
     command = ''.join(sys.argv)
-    printl(f"Called with: python {command}", log_path=log_path)
+    printl(f"Executed with: python {command}", log_path=log_path)
     """
     Directories
     """
