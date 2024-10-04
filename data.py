@@ -10,6 +10,8 @@ class pytdcDataset(Dataset):
         Initializes the dataset object.
         :param dataframe: A DataFrame containing the data to be used in this dataset.
         """
+        self.configs = configs
+
         # Using specific columns for features and labels
         TCR = dataframe['tcr'].values
         epitope = dataframe['epitope_aa'].values
