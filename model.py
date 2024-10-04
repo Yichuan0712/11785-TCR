@@ -84,7 +84,7 @@ class ESM2(nn.Module):  # embedding table is fixed
                 for p in layer.parameters():
                     p.requires_grad = True
 
-            if unfix_last_layer != 0:  # if need fine-tune last layer, the emb_layer_norm_after for last representation should updated
+            if unfix_last_layer != 0:  # if you need fine-tune last layer, the emb_layer_norm_after for last representation should be updated
                 for p in self.esm2.emb_layer_norm_after.parameters():
                     p.requires_grad = True
 
