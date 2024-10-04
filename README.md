@@ -7,6 +7,6 @@
      \______| \______/  |__| \__|     |__|     | _| `._____/__/     \__\  |__|      \______|| _| `._____|
 
 
-## 11785 Final Project
+11785 Final Project
 
 [//]: # (Team 29: Yichuan Zhang, Shubham Kachroo, Isaac Martinotti, Adam Hunt)

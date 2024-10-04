@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 import pandas as pd
 
 
-class pytdcDataset(Dataset):
+class PytdcDatasetTriplet(Dataset):
     def __init__(self, dataframe, configs):
         """
         Initializes the dataset object.
@@ -42,14 +42,16 @@ def get_dataloader(configs):
     if configs.dataset == "pytdc":
         # Load validation and test data
         valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
-        test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
+        # test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
 
-        # Combine and shuffle remaining data for training
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
 
         # Create datasets
-        train_dataset = pytdcDataset(train_data, configs)
-        valid_dataset = pytdcDataset(valid_data, configs)
+        if configs.contrastive_mode == "Triplet":
+            train_dataset = PytdcDatasetTriplet(train_data, configs)
+            valid_dataset = PytdcDatasetTriplet(valid_data, configs)
+        else:
+            raise ValueError("Wrong contrastive mode specified.")
         # test_dataset = pytdcDataset(test_data, configs)
 
         # Create dataloaders

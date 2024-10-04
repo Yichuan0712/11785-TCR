@@ -24,3 +24,6 @@ lora:
   alpha: 32
   dropout: 0.05
 
+contrastive_mode: "Triplet"
+                # "Triplet"
+                # "MultiPosNeg"
