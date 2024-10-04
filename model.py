@@ -13,33 +13,34 @@ class ESM2(nn.Module):  # embedding table is fixed
         unfix_last_layer: the number of layers that can be fine-tuned
         """
         super(ESM2, self).__init__()
+        esm2_dict = {}
         if configs.adapter_h.enable:
             adapter_args = configs.adapter_h
-            esm2_dict = {
-                         "esm2_t36_3B_UR50D": esm_adapterH.pretrained.esm2_t36_3B_UR50D(adapter_args),
-                         # 36 layers embedding = 2560
-                         "esm2_t33_650M_UR50D": esm_adapterH.pretrained.esm2_t33_650M_UR50D(adapter_args),
-                         # 33 layers embedding = 1280
-                         "esm2_t30_150M_UR50D": esm_adapterH.pretrained.esm2_t30_150M_UR50D(adapter_args),
-                         # 30 layers embedding = 640
-                         "esm2_t12_35M_UR50D": esm_adapterH.pretrained.esm2_t12_35M_UR50D(adapter_args),
-                         # 12 layers embedding = 480
-                         "esm2_t6_8M_UR50D": esm_adapterH.pretrained.esm2_t6_8M_UR50D(adapter_args),
-                         # 6 layers embedding = 320
-                         }
+            if configs.encoder_name == "esm2_t36_3B_UR50D":
+                esm2_dict["esm2_t36_3B_UR50D"] = esm_adapterH.pretrained.esm2_t36_3B_UR50D(adapter_args)
+            elif configs.encoder_name == "esm2_t33_650M_UR50D":
+                esm2_dict["esm2_t33_650M_UR50D"] = esm_adapterH.pretrained.esm2_t33_650M_UR50D(adapter_args)
+            elif configs.encoder_name == "esm2_t30_150M_UR50D":
+                esm2_dict["esm2_t30_150M_UR50D"] = esm_adapterH.pretrained.esm2_t30_150M_UR50D(adapter_args)
+            elif configs.encoder_name == "esm2_t12_35M_UR50D":
+                esm2_dict["esm2_t12_35M_UR50D"] = esm_adapterH.pretrained.esm2_t12_35M_UR50D(adapter_args)
+            elif configs.encoder_name == "esm2_t6_8M_UR50D":
+                esm2_dict["esm2_t6_8M_UR50D"] = esm_adapterH.pretrained.esm2_t6_8M_UR50D(adapter_args)
+            else:
+                raise ValueError(f"Unknown encoder name: {configs.encoder_name}")
         else:
-            esm2_dict = {
-                         "esm2_t36_3B_UR50D": esm.pretrained.esm2_t36_3B_UR50D(),
-                         # 36 layers embedding = 2560
-                         "esm2_t33_650M_UR50D": esm.pretrained.esm2_t33_650M_UR50D(),
-                         # 33 layers embedding = 1280
-                         "esm2_t30_150M_UR50D": esm.pretrained.esm2_t30_150M_UR50D(),
-                         # 30 layers embedding = 640
-                         "esm2_t12_35M_UR50D": esm.pretrained.esm2_t12_35M_UR50D(),
-                         # 12 layers embedding = 480
-                         "esm2_t6_8M_UR50D": esm.pretrained.esm2_t6_8M_UR50D(),
-                         # 6 layers embedding = 320
-                         }
+            if configs.encoder_name == "esm2_t36_3B_UR50D":
+                esm2_dict["esm2_t36_3B_UR50D"] = esm.pretrained.esm2_t36_3B_UR50D()
+            elif configs.encoder_name == "esm2_t33_650M_UR50D":
+                esm2_dict["esm2_t33_650M_UR50D"] = esm.pretrained.esm2_t33_650M_UR50D()
+            elif configs.encoder_name == "esm2_t30_150M_UR50D":
+                esm2_dict["esm2_t30_150M_UR50D"] = esm.pretrained.esm2_t30_150M_UR50D()
+            elif configs.encoder_name == "esm2_t12_35M_UR50D":
+                esm2_dict["esm2_t12_35M_UR50D"] = esm.pretrained.esm2_t12_35M_UR50D()
+            elif configs.encoder_name == "esm2_t6_8M_UR50D":
+                esm2_dict["esm2_t6_8M_UR50D"] = esm.pretrained.esm2_t6_8M_UR50D()
+            else:
+                raise ValueError(f"Unknown encoder name: {configs.encoder_name}")
 
         self.esm2, self.alphabet = esm2_dict[configs.encoder_name]
 
