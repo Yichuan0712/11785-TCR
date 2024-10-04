@@ -93,7 +93,7 @@ class ESM2(nn.Module):  # embedding table is fixed
                 p.requires_grad = True
 
     def forward(self, x):
-        return None
+        raise NotImplementedError
 
 
 def prepare_models(configs, log_path):
