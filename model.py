@@ -9,9 +9,6 @@ import numpy as np  # for lora
 
 class ESM2(nn.Module):  # embedding table is fixed
     def __init__(self, configs):
-        """
-        unfix_last_layer: the number of layers that can be fine-tuned
-        """
         super(ESM2, self).__init__()
         esm2_dict = {}
         if configs.adapter_h.enable:
@@ -73,7 +70,7 @@ class ESM2(nn.Module):  # embedding table is fixed
             self.peft_model = get_peft_model(self.esm2, peft_config)
 
         elif configs.fine_tuning.enable:
-            unfix_last_layer = configs.fine_tuning.unfix_last_layer
+            unfix_last_layer = configs.fine_tuning.unfix_last_layer  # unfix_last_layer: the number of layers that can be fine-tuned
             fix_layer_num = self.num_layers - unfix_last_layer
             fix_layer_index = 0
             for layer in self.esm2.layers:  # only fine-tune transformer layers, no contact_head and other parameters
