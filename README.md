@@ -9,4 +9,4 @@
 
 ## 11785 Final Project
 
-Team 29: Yichuan Zhang, Shubham Kachroo, Isaac Martinotti, Adam Hunt
+[//]: # (Team 29: Yichuan Zhang, Shubham Kachroo, Isaac Martinotti, Adam Hunt)
