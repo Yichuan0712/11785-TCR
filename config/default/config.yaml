@@ -3,11 +3,27 @@ description: "ContraTCR Colab Test"
 dataset: "pytdc"
 batch_size: 16
 
-model_scheme: "esm2"
-encoder_name:  facebook/esm2_t33_650M_UR50D
-  # facebook/esm2_t33_650M_UR50D,
-  # facebook/esm2_t30_150M_UR50D,
-  # facebook/esm2_t12_35M_UR50D,
-  # facebook/esm2_t6_8M_UR50D,
-training_mode: "finetune" # "frozen" "finetune"
-finetune_layer: -2
+encoder_name:  esm2_t36_3B_UR50D
+              # esm2_t36_3B_UR50D,
+              # esm2_t33_650M_UR50D,
+              # esm2_t30_150M_UR50D,
+              # esm2_t12_35M_UR50D,
+              # esm2_t6_8M_UR50D,
+tune_ESM_table: False
+fine_tuning:
+  enable: False
+  unfix_last_layer: 4
+adapter_h:
+  enable: True
+  num_end_adapter_layers: 12
+  module_type: "MLP1"
+lora:
+  enable: False
+  esm_num_end_lora: -1
+  r: 8
+  alpha: 32
+  dropout: 0.05
+  resume:
+    enable: False
+    checkpoint_path: path/to/checkpoints.pth
+

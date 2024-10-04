@@ -7,7 +7,7 @@ import numpy as np
 from box import Box
 import sys
 from data import get_dataloader
-from model import get_tokenizer, get_model
+from model import prepare_models
 
 def main(parse_args, configs):
     torch.cuda.empty_cache()
@@ -67,17 +67,11 @@ def main(parse_args, configs):
     printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
     printl("Data loading complete.", log_path=log_path)
     """
-    Tokenizer
-    """
-    # printl(f"{'=' * 128}", log_path=log_path)
-    # tokenizer = get_tokenizer(configs)
-    # printl("Tokenizer initialization complete.", log_path=log_path)
-    """
     Model
     """
-    # printl(f"{'=' * 128}", log_path=log_path)
-    # encoder = get_model(configs, log_path=log_path)
-    # printl("Model initialization complete.", log_path=log_path)
+    printl(f"{'=' * 128}", log_path=log_path)
+    encoder = prepare_models(configs, log_path=log_path)
+    printl("Model initialization complete.", log_path=log_path)
     return
 
 
