@@ -11,10 +11,10 @@ encoder_name:  esm2_t6_8M_UR50D
               # esm2_t6_8M_UR50D,
 tune_ESM_table: False
 fine_tuning:
-  enable: False
+  enable: True
   unfix_last_layer: 4
 adapter_h:
-  enable: True
+  enable: False
   num_end_adapter_layers: 12
   module_type: "MLP1"
 lora:
