@@ -40,26 +40,15 @@ class PytdcDatasetTriplet(Dataset):
 
 def get_dataloader(configs):
     if configs.dataset == "pytdc":
-        # Load validation and test data
-        valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
-        # test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
-
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
-
-        # Create datasets
+        valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
             train_dataset = PytdcDatasetTriplet(train_data, configs)
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
         else:
             raise ValueError("Wrong contrastive mode specified.")
-        # test_dataset = pytdcDataset(test_data, configs)
-
-        # Create dataloaders
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=configs.batch_size, shuffle=False)
-        # test_loader = DataLoader(test_dataset, batch_size=configs.batch_size, shuffle=False)
-
-        # return {'train': train_loader, 'valid': valid_loader, 'test': test_loader}
         return {'train': train_loader, 'valid': valid_loader}
     else:
         raise ValueError("Wrong dataset specified.")
