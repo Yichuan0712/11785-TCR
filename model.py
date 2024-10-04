@@ -104,7 +104,7 @@ class ESM2(nn.Module):  # embedding table is fixed
 
 def prepare_models(configs, log_path):
     # Use ESM2 for sequence
-    model_seq = ESM2(configs.encoder_name)
+    model_seq = ESM2(configs)
 
     return None
 
