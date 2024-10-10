@@ -23,6 +23,8 @@ class PytdcDatasetTriplet(Dataset):
 
         self.TCR_neg = TCR[label != 1]
         self.epitope_neg = epitope[label != 1]
+
+        # TODO get TCR_epitope, epitope_TCR
     def __len__(self):
         """
         Returns the number of samples in the dataset.
@@ -45,10 +47,12 @@ def get_dataloader(configs):
         if configs.contrastive_mode == "Triplet":
             train_dataset = PytdcDatasetTriplet(train_data, configs)
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
+            # get
+            # get
         else:
             raise ValueError("Wrong contrastive mode specified.")
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=configs.batch_size, shuffle=False)
-        return {'train': train_loader, 'valid': valid_loader}
+        return {'train': train_loader, 'valid': valid_loader}  # get
     else:
         raise ValueError("Wrong dataset specified.")
