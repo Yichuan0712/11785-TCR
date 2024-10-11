@@ -2,13 +2,13 @@ import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 import pandas as pd
+import random
 
 
 class PytdcDatasetTriplet(Dataset):
     def __init__(self, dataframe, configs):
         """
-        Initializes the dataset object.
-        :param dataframe: A DataFrame containing the data to be used in this dataset.
+
         """
         self.configs = configs
 
@@ -17,7 +17,7 @@ class PytdcDatasetTriplet(Dataset):
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
 
-        # Storing TCR and epitope based on label, these are positive pairs
+        # Storing TCR and epitopes based on label, these are positive pairs
         self.TCR = TCR[label == 1]
         self.epitope = epitope[label == 1]
 
@@ -25,7 +25,7 @@ class PytdcDatasetTriplet(Dataset):
         self.TCR_neg = TCR[label != 1]
         self.epitope_neg = epitope[label != 1]
 
-        # Generate dictionaries mapping TCR to all related epitope values and vice versa
+        # Generate dictionaries mapping TCR to all related epitopes and vice versa
         self.TCR_epitope = {}
         self.epitope_TCR = {}
 
@@ -51,19 +51,25 @@ class PytdcDatasetTriplet(Dataset):
             if epi not in self.epitope_TCR_neg:
                 self.epitope_TCR_neg[epi] = []
             self.epitope_TCR_neg[epi].append(tcr_neg)
+
+        self.full_list = []
+        for ep in self.epitope_TCR.keys():
+            self.full_list.append(ep)
     def __len__(self):
         """
-        Returns the number of samples in the dataset.
+
         """
-        return len(self.epitope)
+        return len(self.full_list)
 
     def __getitem__(self, idx):
         """
-        Retrieves the feature tensor and label tensor at the specified index.
-        :param idx: Index of the data point to retrieve.
-        :return: A tuple containing the feature tensor and label tensor.
+
         """
-        return self.TCR[idx], self.epitope[idx]
+        anchor_epitope = self.full_list[idx]
+        anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
+        positive_TCR = NotImplementedError
+        negative_TCR = NotImplementedError
+        return {'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
 def get_dataloader(configs):
@@ -79,6 +85,8 @@ def get_dataloader(configs):
             raise ValueError("Wrong contrastive mode specified.")
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=configs.batch_size, shuffle=False)
-        return {'train': train_loader, 'valid': valid_loader}  # get
+        return {'train_loader': train_loader, 'valid_loader': valid_loader,
+                'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
+                'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}  # get
     else:
         raise ValueError("Wrong dataset specified.")
