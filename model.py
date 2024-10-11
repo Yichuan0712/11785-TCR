@@ -96,6 +96,7 @@ class ESM2(nn.Module):  # embedding table is fixed
 
         return residue_feature
 
+
 def prepare_models(configs, log_path):
     # Use ESM2 for sequence
     model_seq = ESM2(configs)
