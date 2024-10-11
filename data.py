@@ -8,7 +8,15 @@ import random
 class PytdcDatasetTriplet(Dataset):
     def __init__(self, dataframe, configs):
         """
+        Initializes the PytdcDatasetTriplet dataset object.
 
+        Args:
+            dataframe (pd.DataFrame): A DataFrame containing the data to be used in this dataset.
+            configs: Configuration parameters that include dataset and model settings.
+
+        This method processes the dataframe to create dictionaries that map TCR sequences to their
+        associated epitopes and vice versa, for both positive and negative pairs. It also generates a
+        list of unique epitopes for sampling purposes.
         """
         self.configs = configs
 
@@ -57,12 +65,24 @@ class PytdcDatasetTriplet(Dataset):
             self.full_list.append(ep)
     def __len__(self):
         """
+        Returns the number of unique epitopes in the dataset.
 
+        Returns:
+            int: Length of the number of unique epitopes.
         """
         return len(self.full_list)
 
     def __getitem__(self, idx):
         """
+        Retrieves a single data sample for the triplet-based contrastive learning task.
+
+        Args:
+            idx (int): Index for accessing the anchor epitope from the unique epitopes list.
+
+        Returns:
+            dict: A dictionary containing 'anchor_TCR', 'positive_TCR', and 'negative_TCR'.
+                  These are the sequences involved in the triplet, with the anchor TCR corresponding
+                  to the sampled anchor epitope, and NotImplementedError placeholders for positive and negative TCRs.
 
         """
         anchor_epitope = self.full_list[idx]
@@ -79,8 +99,6 @@ def get_dataloader(configs):
         if configs.contrastive_mode == "Triplet":
             train_dataset = PytdcDatasetTriplet(train_data, configs)
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
-            # get
-            # get
         else:
             raise ValueError("Wrong contrastive mode specified.")
         train_loader = DataLoader(train_dataset, batch_size=configs.batch_size, shuffle=True, drop_last=True)
