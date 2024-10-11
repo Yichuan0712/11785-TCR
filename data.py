@@ -87,6 +87,6 @@ def get_dataloader(configs):
         valid_loader = DataLoader(valid_dataset, batch_size=configs.batch_size, shuffle=False)
         return {'train_loader': train_loader, 'valid_loader': valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
-                'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}  # get
+                'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
         raise ValueError("Wrong dataset specified.")
