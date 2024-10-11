@@ -90,8 +90,11 @@ class ESM2(nn.Module):  # embedding table is fixed
                 p.requires_grad = True
 
     def forward(self, x):
-        raise NotImplementedError
+        outputs = self.esm2(x, repr_layers=[self.num_layers], return_contacts=False)
 
+        residue_feature = outputs['representations'][self.num_layers]
+
+        return residue_feature
 
 def prepare_models(configs, log_path):
     # Use ESM2 for sequence
