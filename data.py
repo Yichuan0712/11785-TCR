@@ -17,14 +17,40 @@ class PytdcDatasetTriplet(Dataset):
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
 
-        # Storing TCR and epitope based on label
+        # Storing TCR and epitope based on label, these are positive pairs
         self.TCR = TCR[label == 1]
         self.epitope = epitope[label == 1]
 
+        # These are negative pairs in the original dataset
         self.TCR_neg = TCR[label != 1]
         self.epitope_neg = epitope[label != 1]
 
-        # TODO get TCR_epitope, epitope_TCR
+        # Generate dictionaries mapping TCR to all related epitope values and vice versa
+        self.TCR_epitope = {}
+        self.epitope_TCR = {}
+
+        for tcr, epi in zip(self.TCR, self.epitope):
+            if tcr not in self.TCR_epitope:
+                self.TCR_epitope[tcr] = []
+            self.TCR_epitope[tcr].append(epi)
+
+            if epi not in self.epitope_TCR:
+                self.epitope_TCR[epi] = []
+            self.epitope_TCR[epi].append(tcr)
+
+        # Negative sampling dictionaries
+        self.TCR_epitope_neg = {}
+        self.epitope_TCR_neg = {}
+
+        for tcr, epi_neg in zip(self.TCR, self.epitope_neg):
+            if tcr not in self.TCR_epitope_neg:
+                self.TCR_epitope_neg[tcr] = []
+            self.TCR_epitope_neg[tcr].append(epi_neg)
+
+        for epi, tcr_neg in zip(self.epitope, self.TCR_neg):
+            if epi not in self.epitope_TCR_neg:
+                self.epitope_TCR_neg[epi] = []
+            self.epitope_TCR_neg[epi].append(tcr_neg)
     def __len__(self):
         """
         Returns the number of samples in the dataset.
