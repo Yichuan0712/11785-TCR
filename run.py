@@ -70,8 +70,9 @@ def main(parse_args, configs):
     Model
     """
     printl(f"{'=' * 128}", log_path=log_path)
-    encoder = prepare_models(configs, log_path=log_path)
-    printl("Model initialization complete.", log_path=log_path)
+    encoder, projection_head = prepare_models(configs, log_path=log_path)
+    printl("ESM-2 model & projection head initialization complete.", log_path=log_path)
+
     return
 
 

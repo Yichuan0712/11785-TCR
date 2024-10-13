@@ -97,11 +97,46 @@ class ESM2(nn.Module):  # embedding table is fixed
         return residue_feature
 
 
+class LayerNormNet(nn.Module):
+    def __init__(self, embedding_dim, hidden_dim, out_dim, drop_out):
+        super(LayerNormNet, self).__init__()
+        self.hidden_dim1 = hidden_dim
+        self.out_dim = out_dim
+        self.drop_out = drop_out
+
+        self.fc1 = nn.Linear(embedding_dim, hidden_dim)
+        self.ln1 = nn.LayerNorm(hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.ln2 = nn.LayerNorm(hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, out_dim)
+        self.dropout = nn.Dropout(p=drop_out)
+
+    def forward(self, x):
+        x = self.dropout(self.ln1(self.fc1(x)))
+        x = torch.relu(x)
+        x = self.dropout(self.ln2(self.fc2(x)))
+        x = torch.relu(x)
+        x = self.fc3(x)
+        return x
+
+
 def prepare_models(configs, log_path):
     # Use ESM2 for sequence
     model_seq = ESM2(configs)
-
-    return None
+    if configs.encoder_name == "esm2_t36_3B_UR50D":
+        embedding_dim = 2560
+    elif configs.encoder_name == "esm2_t33_650M_UR50D":
+        embedding_dim = 1280
+    elif configs.encoder_name == "esm2_t30_150M_UR50D":
+        embedding_dim = 640
+    elif configs.encoder_name == "esm2_t12_35M_UR50D":
+        embedding_dim = 480
+    elif configs.encoder_name == "esm2_t6_8M_UR50D":
+        embedding_dim = 320
+    else:
+        raise ValueError(f"Unknown encoder name: {configs.encoder_name}")
+    projection_head = LayerNormNet(embedding_dim=embedding_dim, hidden_dim=configs.hidden_dim, out_dim=configs.out_dim, drop_out=configs.drop_out)
+    return model_seq, projection_head
 
 
 if __name__ == '__main__':
