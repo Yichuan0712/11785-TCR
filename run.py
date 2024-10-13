@@ -71,6 +71,10 @@ def main(parse_args, configs):
     """
     printl(f"{'=' * 128}", log_path=log_path)
     encoder, projection_head = prepare_models(configs, log_path=log_path)
+    device = torch.device("cuda")
+    encoder.to(device)
+    projection_head.to(device)
+
     printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
 
     return
