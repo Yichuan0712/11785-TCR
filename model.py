@@ -122,7 +122,7 @@ class LayerNormNet(nn.Module):
 
 def prepare_models(configs, log_path):
     # Use ESM2 for sequence
-    model_seq = ESM2(configs)
+    encoder = ESM2(configs)
     if configs.encoder_name == "esm2_t36_3B_UR50D":
         embedding_dim = 2560
     elif configs.encoder_name == "esm2_t33_650M_UR50D":
@@ -136,7 +136,7 @@ def prepare_models(configs, log_path):
     else:
         raise ValueError(f"Unknown encoder name: {configs.encoder_name}")
     projection_head = LayerNormNet(embedding_dim=embedding_dim, hidden_dim=configs.hidden_dim, out_dim=configs.out_dim, drop_out=configs.drop_out)
-    return model_seq, projection_head
+    return encoder, projection_head
 
 
 if __name__ == '__main__':
