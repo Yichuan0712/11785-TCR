@@ -101,8 +101,8 @@ def get_dataloader(configs):
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
         else:
             raise ValueError("Wrong contrastive mode specified.")
-        train_loader = DataLoader(train_dataset, batch_size=100, shuffle=True, drop_last=True)
-        valid_loader = DataLoader(valid_dataset, batch_size=100, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=len(train_dataset.epitope_TCR.keys()), shuffle=True, drop_last=True)
+        valid_loader = DataLoader(valid_dataset, batch_size=len(train_dataset.epitope_TCR.keys()), shuffle=False)
         return {'train_loader': train_loader, 'valid_loader': valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
