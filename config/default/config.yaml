@@ -28,7 +28,7 @@ contrastive_mode: "Triplet"
                 # "Triplet"
                 # "MultiPosNeg"
 
-prjection_head_name:
-  hidden_dim: 512
-  out_dim: 128
-  drop_out: 0.1
+projection_head_name: "LayerNorm"
+hidden_dim: 512
+out_dim: 128
+drop_out: 0.1

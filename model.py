@@ -135,7 +135,10 @@ def prepare_models(configs, log_path):
         embedding_dim = 320
     else:
         raise ValueError(f"Unknown encoder name: {configs.encoder_name}")
-    projection_head = LayerNormNet(embedding_dim=embedding_dim, hidden_dim=configs.hidden_dim, out_dim=configs.out_dim, drop_out=configs.drop_out)
+    if configs.projection_head_name == "LayerNorm":
+        projection_head = LayerNormNet(embedding_dim=embedding_dim, hidden_dim=configs.hidden_dim, out_dim=configs.out_dim, drop_out=configs.drop_out)
+    else:
+        raise ValueError(f"Unknown projection head name: {configs.projection_head_name}")
     return encoder, projection_head
 
 
