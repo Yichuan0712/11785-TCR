@@ -4,11 +4,11 @@ dataset: "pytdc"
 #batch_size: 16
 
 encoder_name:  esm2_t6_8M_UR50D
-              # esm2_t36_3B_UR50D,
-              # esm2_t33_650M_UR50D,
-              # esm2_t30_150M_UR50D,
-              # esm2_t12_35M_UR50D,
-              # esm2_t6_8M_UR50D,
+                # esm2_t36_3B_UR50D,
+                # esm2_t33_650M_UR50D,
+                # esm2_t30_150M_UR50D,
+                # esm2_t12_35M_UR50D,
+                # esm2_t6_8M_UR50D,
 tune_ESM_table: False
 fine_tuning:
   enable: True
@@ -25,8 +25,11 @@ lora:
   dropout: 0.05
 
 contrastive_mode: "Triplet"
-                # "Triplet"
-                # "MultiPosNeg"
+                  # "Triplet"
+                  # "MultiPosNeg"
+negative_sampling_mode: "ExcludePos"
+                        #"ExcludePos"
+                        #"RandomNeg"
 
 projection_head_name: "LayerNorm"
 hidden_dim: 512

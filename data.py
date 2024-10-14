@@ -82,13 +82,24 @@ class PytdcDatasetTriplet(Dataset):
         Returns:
             dict: A dictionary containing 'anchor_TCR', 'positive_TCR', and 'negative_TCR'.
                   These are the sequences involved in the triplet, with the anchor TCR corresponding
-                  to the sampled anchor epitope, and NotImplementedError placeholders for positive and negative TCRs.
+                  to the sampled anchor epitope.
 
         """
         anchor_epitope = self.full_list[idx]
         anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
         positive_TCR = random.choice([tcr for tcr in self.epitope_TCR[anchor_epitope] if tcr != anchor_TCR])
-        negative_TCR = random.choice(self.epitope_TCR_neg[anchor_epitope])
+        # Select a negative TCR based on configuration setting
+        if self.configs.negative_sampling_mode == 'RandomNeg':
+            # Option 1: Randomly select from negative pairs
+            negative_TCR = random.choice(self.epitope_TCR_neg[anchor_epitope])
+        elif self.configs.negative_sampling_mode == 'ExcludePos':
+            # Option 2: Exclude all positive samples and randomly select
+            all_options = set(self.TCR_epitope.keys())
+            positive_options = set(self.epitope_TCR[anchor_epitope])
+            non_positive_options = list(all_options - positive_options)
+            negative_TCR = random.choice(non_positive_options)
+        else:
+            raise ValueError("Invalid negative sampling strategy specified in configs.")
         return {'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
