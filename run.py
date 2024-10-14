@@ -116,19 +116,20 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
 
     total_loss = 0
     for batch, data in enumerate(train_loader):
-        epitope_data = data['anchor_epitope']
-        anchor_data = data['anchor_TCR']
-        positive_data = data['positive_TCR']
-        negative_data = data['negative_TCR']
+        epitope_list = data['anchor_epitope']
+        anchor_list = data['anchor_TCR']
+        positive_list = data['positive_TCR']
+        negative_list = data['negative_TCR']
 
-        print(epitope_data)
-        print(anchor_data)
+        anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
+        _, _, anchor_tokens = tokenizer(anchor_seq_batch)
 
-        anchor_seq_batch = [(epitope_data[i], str(anchor_data[i])) for i in range(len(epitope_data))]
-        anchor_labels, anchor_strs, anchor_tokens = tokenizer(anchor_seq_batch)
-        print(anchor_labels)
-        print(anchor_strs)
-        print(anchor_tokens)
+        positive_seq_batch = [(epitope_list[i], str(positive_list[i])) for i in range(len(epitope_list))]
+        _, _, positive_tokens = tokenizer(positive_seq_batch)
+
+        negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
+        _, _, negative_tokens = tokenizer(negative_seq_batch)
+
         exit(0)
     #     anchor_emb = projection_head(encoder(anchor_data))
     #     positive_emb = projection_head(encoder(positive_data))
