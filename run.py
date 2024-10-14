@@ -133,12 +133,13 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
         print(anchor_tokens.shape)
         print(positive_tokens.shape)
         print(negative_tokens.shape)
-        exit(0)
-
         anchor_emb = projection_head(encoder(anchor_tokens.to(device)))
         positive_emb = projection_head(encoder(positive_tokens.to(device)))
         negative_emb = projection_head(encoder(negative_tokens.to(device)))
-
+        print(anchor_emb.shape)
+        print(positive_emb.shape)
+        print(negative_emb.shape)
+        exit(0)
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
         optimizer.zero_grad()
