@@ -113,7 +113,7 @@ class PytdcDatasetTriplet(Dataset):
             negative_TCR = random.choice(non_positive_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
-        return {'anchor_TCR': torch.tensor(anchor_TCR), 'positive_TCR': torch.tensor(positive_TCR), 'negative_TCR': torch.tensor(negative_TCR)}
+        return {'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
 
