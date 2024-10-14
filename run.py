@@ -61,7 +61,7 @@ def main(parse_args, configs):
     Dataloader
     """
     printl(f"{'=' * 128}", log_path=log_path)
-    dataloaders_dict = get_dataloader(configs)
+    dataloaders = get_dataloader(configs)
     # printl(f'Number of Steps for Training Data: {len(dataloaders_dict["train_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Validation Data: {len(dataloaders_dict["valid_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
@@ -77,6 +77,11 @@ def main(parse_args, configs):
 
     printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
 
+    """
+    
+    """
+    for batch, data in enumerate(dataloaders['train_loader']):
+        print(batch, data)
     return
 
 
