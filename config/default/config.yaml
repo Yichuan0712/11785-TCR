@@ -4,6 +4,7 @@ dataset: "pytdc"
 batch_mode: "by_epitope"
               # "by_epitope"
               # "regular"
+batch_size: 192
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,
