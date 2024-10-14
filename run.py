@@ -121,7 +121,7 @@ def train(encoder, projection_head, epoch, train_loader, optimizer, schedular, c
         anchor_emb = projection_head(encoder(anchor_data))
         positive_emb = projection_head(encoder(positive_data))
         negative_emb = projection_head(encoder(negative_data))
-
+        print(anchor_emb)
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
         optimizer.zero_grad()
