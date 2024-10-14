@@ -1,4 +1,4 @@
-fix_seed: 42
+#fix_seed: 42
 description: "ContraTCR Colab Test"
 dataset: "pytdc"
 #batch_size: 16
