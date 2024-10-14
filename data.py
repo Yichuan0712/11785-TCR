@@ -87,8 +87,8 @@ class PytdcDatasetTriplet(Dataset):
         """
         anchor_epitope = self.full_list[idx]
         anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
-        positive_TCR = NotImplementedError
-        negative_TCR = NotImplementedError
+        positive_TCR = random.choice([tcr for tcr in self.epitope_TCR[anchor_epitope] if tcr != anchor_TCR])
+        negative_TCR = random.choice(self.epitope_TCR_neg[anchor_epitope])
         return {'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
