@@ -77,10 +77,11 @@ def main(parse_args, configs):
     encoder.to(device)
     projection_head.to(device)
     printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
-
     """
-    
+    Tokenizer, Optimizer, Schedular, Criterion
     """
+    alphabet = encoder.alphabet
+    tokenizer = alphabet.get_batch_converter()  # truncation_seq_length=512?
     optimizer = torch.optim.AdamW(
         list(encoder.parameters()) + list(projection_head.parameters()),
         lr=float(configs.max_learning_rate),
@@ -97,16 +98,17 @@ def main(parse_args, configs):
         gamma=float(configs.schedular_gamma)
     )
     criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
+    printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
     for epoch in range(1, configs.epochs + 1):
         # for batch, data in enumerate(dataloaders['train_loader']):
         #     print(len(data['anchor_TCR']))
         #     print(len(data['positive_TCR']))
         #     print(len(data['negative_TCR']))
-        train(encoder, projection_head, epoch, dataloaders["train_loader"], optimizer, schedular, criterion, log_path)
+        train(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, log_path)
     return
 
 
-def train(encoder, projection_head, epoch, train_loader, optimizer, schedular, criterion, log_path):
+def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, log_path):
     device = torch.device("cuda")
 
     encoder.train()
@@ -114,29 +116,39 @@ def train(encoder, projection_head, epoch, train_loader, optimizer, schedular, c
 
     total_loss = 0
     for batch, data in enumerate(train_loader):
-        anchor_data = data['anchor_TCR'].to(device)
-        positive_data = data['positive_TCR'].to(device)
-        negative_data = data['negative_TCR'].to(device)
+        epitope_data = data['anchor_epitope']
+        anchor_data = data['anchor_TCR']
+        positive_data = data['positive_TCR']
+        negative_data = data['negative_TCR']
 
-        anchor_emb = projection_head(encoder(anchor_data))
-        positive_emb = projection_head(encoder(positive_data))
-        negative_emb = projection_head(encoder(negative_data))
+        print(epitope_data)
+        print(anchor_data)
 
-        loss = criterion(anchor_emb, positive_emb, negative_emb)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        schedular.step()
-
-        total_loss += loss.item()
-
-        # if batch % 10 == 0:
-        printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
-
-    avg_loss = total_loss / len(train_loader)
-    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
+        anchor_seq_batch = [(epitope_data[i], str(anchor_data[i])) for i in range(len(epitope_data))]
+        anchor_labels, anchor_strs, anchor_tokens = tokenizer(anchor_seq_batch)
+        print(anchor_labels)
+        print(anchor_strs)
+        print(anchor_tokens)
+        exit(0)
+    #     anchor_emb = projection_head(encoder(anchor_data))
+    #     positive_emb = projection_head(encoder(positive_data))
+    #     negative_emb = projection_head(encoder(negative_data))
+    #
+    #     loss = criterion(anchor_emb, positive_emb, negative_emb)
+    #
+    #     optimizer.zero_grad()
+    #     loss.backward()
+    #     optimizer.step()
+    #
+    #     schedular.step()
+    #
+    #     total_loss += loss.item()
+    #
+    #     # if batch % 10 == 0:
+    #     printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
+    #
+    # avg_loss = total_loss / len(train_loader)
+    # printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
 
 if __name__ == "__main__":
