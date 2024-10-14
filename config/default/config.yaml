@@ -5,6 +5,25 @@ batch_mode: "Regular"
               # "ByEpitope"
               # "Regular"
 batch_size: 192
+epochs: 10
+max_learning_rate: 3e-4
+min_learning_rate: 0
+
+optimizer_beta1: 0.9
+optimizer_beta2: 0.999
+optimizer_weight_decay: 0.0005
+optimizer_eps: 1e-16
+
+schedular_first_cycle_steps: 10
+schedular_warmup_epochs: 3
+schedular_gamma: 1
+
+contrastive_mode: "Triplet"
+                  # "Triplet"
+                  # "MultiPosNeg"
+negative_sampling_mode: "ExcludePos"
+                        #"ExcludePos"
+                        #"RandomNeg"
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,
@@ -27,12 +46,6 @@ lora:
   alpha: 32
   dropout: 0.05
 
-contrastive_mode: "Triplet"
-                  # "Triplet"
-                  # "MultiPosNeg"
-negative_sampling_mode: "ExcludePos"
-                        #"ExcludePos"
-                        #"RandomNeg"
 
 projection_head_name: "LayerNorm"
 hidden_dim: 512

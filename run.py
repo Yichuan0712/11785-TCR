@@ -3,12 +3,13 @@ import yaml
 from util import printl, printl_file
 from util import prepare_saving_dir
 import torch
+import torch.nn as nn
 import numpy as np
 from box import Box
 import sys
 from data import get_dataloader
 from model import prepare_models
-
+from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 
 def main(parse_args, configs):
     torch.cuda.empty_cache()
@@ -80,10 +81,27 @@ def main(parse_args, configs):
     """
     
     """
-    for batch, data in enumerate(dataloaders['train_loader']):
-        print(len(data['anchor_TCR']))
-        print(len(data['positive_TCR']))
-        print(len(data['negative_TCR']))
+    optimizer = torch.optim.AdamW(
+        list(encoder.parameters()) + list(projection_head.parameters()),
+        lr=float(configs.max_learning_rate),
+        betas=(float(configs.optimizer_beta1), float(configs.optimizer_beta2)),
+        weight_decay=float(configs.optimizer_weight_decay),
+        eps=float(configs.optimizer_eps)
+    )
+    schedular = CosineAnnealingWarmupRestarts(
+        optimizer,
+        first_cycle_steps=configs.schedular_first_cycle_steps,
+        max_lr=configs.max_learning_rate,
+        min_lr=configs.min_learning_rate,
+        warmup_steps=configs.schedular_warmup_epochs,
+        gamma=configs.schedular_gamma
+    )
+    criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
+    for epoch in range(1, configs.epochs + 1):
+        # for batch, data in enumerate(dataloaders['train_loader']):
+        #     print(len(data['anchor_TCR']))
+        #     print(len(data['positive_TCR']))
+        #     print(len(data['negative_TCR']))
     return
 
 
