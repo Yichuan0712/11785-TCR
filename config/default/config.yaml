@@ -1,9 +1,9 @@
 #fix_seed: 42
 description: "ContraTCR Colab Test"
 dataset: "pytdc"
-batch_mode: "regular"
-              # "by_epitope"
-              # "regular"
+batch_mode: "ByEpitope"
+              # "ByEpitope"
+              # "Regular"
 batch_size: 192
 
 encoder_name:  esm2_t6_8M_UR50D

@@ -91,10 +91,10 @@ class PytdcDatasetTriplet(Dataset):
                   to the sampled anchor epitope.
 
         """
-        if self.configs.batch_mode == "by_epitope":
+        if self.configs.batch_mode == "ByEpitope":
             anchor_epitope = self.full_list[idx]
             anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
-        elif self.configs.batch_mode == "regular":
+        elif self.configs.batch_mode == "Regular":
             anchor_TCR, anchor_epitope = self.full_list[idx]
         else:
             raise ValueError("Invalid batch mode specified in configs.")
@@ -126,10 +126,12 @@ def get_dataloader(configs):
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
         else:
             raise ValueError("Wrong contrastive mode specified.")
-        if configs.batch_mode == "by_epitope":
+        if configs.batch_mode == "ByEpitope":
             batch_size = len(train_dataset.epitope_TCR.keys())
-        elif configs.batch_mode == "regular":
+        elif configs.batch_mode == "Regular":
             batch_size = configs.batch_size
+        else:
+            raise ValueError("Invalid batch mode specified in configs.")
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
         return {'train_loader': train_loader, 'valid_loader': valid_loader,
