@@ -114,9 +114,8 @@ def train(encoder, projection_head, epoch, train_loader, optimizer, schedular, c
 
     total_loss = 0
     for batch, data in enumerate(train_loader):
-        print(anchor_data)
-
         anchor_data = data['anchor_TCR'].to(device)
+        print(anchor_data)
         positive_data = data['positive_TCR'].to(device)
         negative_data = data['negative_TCR'].to(device)
 
