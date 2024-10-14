@@ -81,9 +81,9 @@ def main(parse_args, configs):
     
     """
     for batch, data in enumerate(dataloaders['train_loader']):
-        print(batch, data['anchor_TCR'])
-        print(data['positive_TCR'])
-        print(data['negative_TCR'])
+        print(len(data['anchor_TCR']))
+        print(len(data['positive_TCR']))
+        print(len(data['negative_TCR']))
     return
 
 
