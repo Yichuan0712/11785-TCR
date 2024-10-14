@@ -61,10 +61,10 @@ class PytdcDatasetTriplet(Dataset):
             self.epitope_TCR_neg[epi].append(tcr_neg)
 
         self.full_list = []
-        if configs.batch_mode == "by_epitope":
+        if configs.batch_mode == "ByEpitope":
             for ep in self.epitope_TCR.keys():
                 self.full_list.append(ep)
-        elif configs.batch_mode == "regular":
+        elif configs.batch_mode == "Regular":
             for tcr, epitope in zip(self.TCR, self.epitope):
                 self.full_list.append((tcr, epitope))
         else:
