@@ -9,6 +9,7 @@ import sys
 from data import get_dataloader
 from model import prepare_models
 
+
 def main(parse_args, configs):
     torch.cuda.empty_cache()
     curdir_path, result_path, checkpoint_path, log_path, config_path = prepare_saving_dir(parse_args)
@@ -48,15 +49,15 @@ def main(parse_args, configs):
     """
     printl(f"{'=' * 128}", log_path=log_path)
     printl_file(parse_args.config_path, log_path=log_path)
-    """
-    Random Seed
-    """
-    if type(configs.fix_seed) == int:
-        torch.manual_seed(configs.fix_seed)
-        torch.random.manual_seed(configs.fix_seed)
-        np.random.seed(configs.fix_seed)
-        printl(f"{'=' * 128}", log_path=log_path)
-        printl(f'Random seed set to {configs.fix_seed}.', log_path=log_path)
+    # """
+    # Random Seed
+    # """
+    # if type(configs.fix_seed) == int:
+    #     torch.manual_seed(configs.fix_seed)
+    #     torch.random.manual_seed(configs.fix_seed)
+    #     np.random.seed(configs.fix_seed)
+    #     printl(f"{'=' * 128}", log_path=log_path)
+    #     printl(f'Random seed set to {configs.fix_seed}.', log_path=log_path)
     """
     Dataloader
     """
