@@ -130,6 +130,11 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
         negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
         _, _, negative_tokens = tokenizer(negative_seq_batch)
 
+        print(anchor_tokens.shape)
+        print(positive_tokens.shape)
+        print(negative_tokens.shape)
+        exit(0)
+
         anchor_emb = projection_head(encoder(anchor_tokens.to(device)))
         positive_emb = projection_head(encoder(positive_tokens.to(device)))
         negative_emb = projection_head(encoder(negative_tokens.to(device)))
