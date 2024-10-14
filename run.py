@@ -130,26 +130,25 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
         negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
         _, _, negative_tokens = tokenizer(negative_seq_batch)
 
-        exit(0)
-    #     anchor_emb = projection_head(encoder(anchor_data))
-    #     positive_emb = projection_head(encoder(positive_data))
-    #     negative_emb = projection_head(encoder(negative_data))
-    #
-    #     loss = criterion(anchor_emb, positive_emb, negative_emb)
-    #
-    #     optimizer.zero_grad()
-    #     loss.backward()
-    #     optimizer.step()
-    #
-    #     schedular.step()
-    #
-    #     total_loss += loss.item()
-    #
-    #     # if batch % 10 == 0:
-    #     printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
-    #
-    # avg_loss = total_loss / len(train_loader)
-    # printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
+        anchor_emb = projection_head(encoder(anchor_tokens.to(device)))
+        positive_emb = projection_head(encoder(positive_tokens.to(device)))
+        negative_emb = projection_head(encoder(negative_tokens.to(device)))
+
+        loss = criterion(anchor_emb, positive_emb, negative_emb)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        schedular.step()
+
+        total_loss += loss.item()
+
+        # if batch % 10 == 0:
+        printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
+
+    avg_loss = total_loss / len(train_loader)
+    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
 
 if __name__ == "__main__":
