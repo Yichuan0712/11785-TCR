@@ -90,11 +90,11 @@ def main(parse_args, configs):
     )
     schedular = CosineAnnealingWarmupRestarts(
         optimizer,
-        first_cycle_steps=configs.schedular_first_cycle_steps,
-        max_lr=configs.max_learning_rate,
-        min_lr=configs.min_learning_rate,
-        warmup_steps=configs.schedular_warmup_epochs,
-        gamma=configs.schedular_gamma
+        first_cycle_steps=int(configs.schedular_first_cycle_steps),
+        max_lr=float(configs.max_learning_rate),
+        min_lr=float(configs.min_learning_rate),
+        warmup_steps=int(configs.schedular_warmup_epochs),
+        gamma=float(configs.schedular_gamma)
     )
     criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
     for epoch in range(1, configs.epochs + 1):
