@@ -1,7 +1,7 @@
 #fix_seed: 42
 description: "ContraTCR Colab Test"
 dataset: "pytdc"
-batch_mode: "by_epitope"
+batch_mode: "regular"
               # "by_epitope"
               # "regular"
 batch_size: 192

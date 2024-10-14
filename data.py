@@ -61,8 +61,14 @@ class PytdcDatasetTriplet(Dataset):
             self.epitope_TCR_neg[epi].append(tcr_neg)
 
         self.full_list = []
-        for ep in self.epitope_TCR.keys():
-            self.full_list.append(ep)
+        if configs.batch_mode == "by_epitope":
+            for ep in self.epitope_TCR.keys():
+                self.full_list.append(ep)
+        elif configs.batch_mode == "regular":
+            for tcr, epitope in zip(self.TCR, self.epitope):
+                self.full_list.append((tcr, epitope))
+        else:
+            raise ValueError("Invalid batch mode specified in configs.")
     def __len__(self):
         """
         Returns the number of unique epitopes in the dataset.
@@ -85,9 +91,16 @@ class PytdcDatasetTriplet(Dataset):
                   to the sampled anchor epitope.
 
         """
-        anchor_epitope = self.full_list[idx]
-        anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
+        if self.configs.batch_mode == "by_epitope":
+            anchor_epitope = self.full_list[idx]
+            anchor_TCR = random.choice(self.epitope_TCR[anchor_epitope])
+        elif self.configs.batch_mode == "regular":
+            anchor_TCR, anchor_epitope = self.full_list[idx]
+        else:
+            raise ValueError("Invalid batch mode specified in configs.")
+
         positive_TCR = random.choice([tcr for tcr in self.epitope_TCR[anchor_epitope] if tcr != anchor_TCR])
+
         # Select a negative TCR based on configuration setting
         if self.configs.negative_sampling_mode == 'RandomNeg':
             # Option 1: Randomly select from negative pairs
@@ -103,6 +116,7 @@ class PytdcDatasetTriplet(Dataset):
         return {'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
+
 def get_dataloader(configs):
     if configs.dataset == "pytdc":
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
@@ -112,8 +126,12 @@ def get_dataloader(configs):
             valid_dataset = PytdcDatasetTriplet(valid_data, configs)
         else:
             raise ValueError("Wrong contrastive mode specified.")
-        train_loader = DataLoader(train_dataset, batch_size=len(train_dataset.epitope_TCR.keys()), shuffle=True, drop_last=True)
-        valid_loader = DataLoader(valid_dataset, batch_size=len(train_dataset.epitope_TCR.keys()), shuffle=False)
+        if configs.batch_mode == "by_epitope":
+            batch_size = len(train_dataset.epitope_TCR.keys())
+        elif configs.batch_mode == "regular":
+            batch_size = configs.batch_size
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
+        valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
         return {'train_loader': train_loader, 'valid_loader': valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
