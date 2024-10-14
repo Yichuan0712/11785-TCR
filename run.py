@@ -75,7 +75,6 @@ def main(parse_args, configs):
     device = torch.device("cuda")
     encoder.to(device)
     projection_head.to(device)
-
     printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
 
     """
