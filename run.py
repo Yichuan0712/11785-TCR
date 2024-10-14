@@ -102,7 +102,41 @@ def main(parse_args, configs):
         #     print(len(data['anchor_TCR']))
         #     print(len(data['positive_TCR']))
         #     print(len(data['negative_TCR']))
+        train(encoder, projection_head, epoch, dataloaders["train_loader"], optimizer, schedular, criterion, log_path)
     return
+
+
+def train(encoder, projection_head, epoch, train_loader, optimizer, schedular, criterion, log_path):
+    device = torch.device("cuda")
+
+    encoder.train()
+    projection_head.train()
+
+    total_loss = 0
+    for batch, data in enumerate(train_loader):
+        anchor_data = data['anchor_TCR'].to(device)
+        positive_data = data['positive_TCR'].to(device)
+        negative_data = data['negative_TCR'].to(device)
+
+        anchor_emb = projection_head(encoder(anchor_data))
+        positive_emb = projection_head(encoder(positive_data))
+        negative_emb = projection_head(encoder(negative_data))
+
+        loss = criterion(anchor_emb, positive_emb, negative_emb)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        schedular.step()
+
+        total_loss += loss.item()
+
+        # if batch % 10 == 0:
+        printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
+
+    avg_loss = total_loss / len(train_loader)
+    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
 
 if __name__ == "__main__":
