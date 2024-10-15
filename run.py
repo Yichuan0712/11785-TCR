@@ -97,25 +97,30 @@ def main(parse_args, configs):
         warmup_steps=int(configs.schedular_warmup_epochs),
         gamma=float(configs.schedular_gamma)
     )
-    criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
-    printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
-    for epoch in range(1, configs.epochs + 1):
-        # for batch, data in enumerate(dataloaders['train_loader']):
-        #     print(len(data['anchor_TCR']))
-        #     print(len(data['positive_TCR']))
-        #     print(len(data['negative_TCR']))
-        train(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, log_path)
+    if configs.contrastive_mode == "Triplet":
+        criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
+        printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
+        printl(f"{'=' * 128}", log_path=log_path)
+        for epoch in range(1, configs.epochs + 1):
+            train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, log_path)
+
+    else:
+        raise ValueError("Wrong contrastive mode specified.")
+
     return
 
 
-def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, log_path):
+def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, log_path):
     device = torch.device("cuda")
 
     encoder.train()
     projection_head.train()
 
     total_loss = 0
-    for batch, data in enumerate(train_loader):
+
+    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch [{epoch}]")
+
+    for batch, data in progress_bar:
         epitope_list = data['anchor_epitope']
         anchor_list = data['anchor_TCR']
         positive_list = data['positive_TCR']
@@ -130,19 +135,11 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
         negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
         _, _, negative_tokens = tokenizer(negative_seq_batch)
 
-        # print(anchor_tokens.shape)
-        # print(positive_tokens.shape)
-        # print(negative_tokens.shape)
-        # anchor_emb = projection_head(encoder(anchor_tokens.to(device)))
-        # positive_emb = projection_head(encoder(positive_tokens.to(device)))
-        # negative_emb = projection_head(encoder(negative_tokens.to(device)))
+
         anchor_emb = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
         positive_emb = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
         negative_emb = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
-        # print(anchor_emb.shape)
-        # print(positive_emb.shape)
-        # print(negative_emb.shape)
-        # exit(0)
+
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
         optimizer.zero_grad()
@@ -153,8 +150,7 @@ def train(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, s
 
         total_loss += loss.item()
 
-        # if batch % 10 == 0:
-        printl(f"Epoch [{epoch}], Batch [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}", log_path=log_path)
+        progress_bar.set_postfix(loss=loss.item())
 
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
