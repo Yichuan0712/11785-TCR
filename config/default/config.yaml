@@ -14,8 +14,8 @@ optimizer_beta2: 0.999
 optimizer_weight_decay: 0.0005
 optimizer_eps: 1e-16
 
-schedular_first_cycle_steps: 10
-schedular_warmup_epochs: 3
+schedular_first_cycle_steps: 100
+schedular_warmup_epochs: 0
 schedular_gamma: 1
 
 contrastive_mode: "Triplet"
