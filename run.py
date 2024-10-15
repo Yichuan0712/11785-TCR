@@ -10,6 +10,8 @@ import sys
 from data import get_dataloader
 from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
+import tqdm
+
 
 def main(parse_args, configs):
     torch.cuda.empty_cache()
