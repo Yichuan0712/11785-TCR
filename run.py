@@ -104,7 +104,7 @@ def main(parse_args, configs):
         printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         for epoch in range(1, configs.epochs + 1):
-            train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, log_path)
+            train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
 
     else:
         raise ValueError("Wrong contrastive mode specified.")
@@ -112,7 +112,7 @@ def main(parse_args, configs):
     return
 
 
-def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, log_path):
+def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, configs, log_path):
     device = torch.device("cuda")
 
     encoder.train()
@@ -120,7 +120,12 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
     total_loss = 0
 
-    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch [{epoch}]")
+    if configs.batch_mode == "Regular":
+        progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch [{epoch}]")
+    elif configs.batch_mode == "ByEpitope":
+        progress_bar = enumerate(train_loader)
+    else:
+        raise ValueError("Invalid batch mode specified in configs.")
 
     for batch, data in progress_bar:
         epitope_list = data['anchor_epitope']
@@ -152,7 +157,8 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
         total_loss += loss.item()
 
-        progress_bar.set_postfix(loss=loss.item())
+        if configs.batch_mode == "Regular":
+            progress_bar.set_postfix(loss=loss.item())
 
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
