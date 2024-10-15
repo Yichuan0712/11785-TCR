@@ -1,6 +1,8 @@
 #fix_seed: 42
 description: "ContraTCR Colab Test"
-dataset: "pytdc"
+dataset: "PyTDC"
+tcr_embedding_source: "BindingSite"
+          # "Full"
 batch_mode: "ByEpitope"
               # "ByEpitope"
               # "Regular"

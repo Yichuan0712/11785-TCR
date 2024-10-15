@@ -21,7 +21,12 @@ class PytdcDatasetTriplet(Dataset):
         self.configs = configs
 
         # Using specific columns for features and labels
-        TCR = dataframe['tcr'].values
+        if configs.sequence_mode == "BindingSite":
+            TCR = dataframe['tcr'].values
+        elif configs.sequence_mode == "Full":
+            TCR = dataframe['tcr_full'].values
+        else:
+            raise ValueError("Invalid TCR embedding source specified in configs.")
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
 
@@ -118,7 +123,7 @@ class PytdcDatasetTriplet(Dataset):
 
 
 def get_dataloader(configs):
-    if configs.dataset == "pytdc":
+    if configs.dataset == "PyTDC":
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
         valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
