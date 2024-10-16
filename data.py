@@ -21,9 +21,9 @@ class PytdcDatasetTriplet(Dataset):
         self.configs = configs
 
         # Using specific columns for features and labels
-        if configs.sequence_mode == "BindingSite":
+        if configs.tcr_embedding_source == "BindingSite":
             TCR = dataframe['tcr'].values
-        elif configs.sequence_mode == "Full":
+        elif configs.tcr_embedding_source == "Full":
             TCR = dataframe['tcr_full'].values
         else:
             raise ValueError("Invalid TCR embedding source specified in configs.")
