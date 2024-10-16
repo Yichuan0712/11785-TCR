@@ -74,6 +74,7 @@ class PytdcDatasetTriplet(Dataset):
                 self.full_list.append((tcr, epitope))
         else:
             raise ValueError("Invalid batch mode specified in configs.")
+
     def __len__(self):
         """
         Returns the number of unique epitopes in the dataset.
@@ -83,6 +84,8 @@ class PytdcDatasetTriplet(Dataset):
         """
         return len(self.full_list)
 
+    def hard_mine(self):
+        return
     def __getitem__(self, idx):
         """
         Retrieves a single data sample for the triplet-based contrastive learning task.
@@ -116,6 +119,9 @@ class PytdcDatasetTriplet(Dataset):
             positive_options = set(self.epitope_TCR[anchor_epitope])
             non_positive_options = list(all_options - positive_options)
             negative_TCR = random.choice(non_positive_options)
+        elif self.configs.negative_sampling_mode == 'HardNeg':
+            all_options = set(self.TCR_epitope.keys())
+            positive_options = set(self.epitope_TCR[anchor_epitope])
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
@@ -123,17 +129,6 @@ class PytdcDatasetTriplet(Dataset):
 
 class PytdcDatasetMulti(Dataset):
     def __init__(self, dataframe, configs):
-        """
-        Initializes the PytdcDatasetTriplet dataset object.
-
-        Args:
-            dataframe (pd.DataFrame): A DataFrame containing the data to be used in this dataset.
-            configs: Configuration parameters that include dataset and model settings.
-
-        This method processes the dataframe to create dictionaries that map TCR sequences to their
-        associated epitopes and vice versa, for both positive and negative pairs. It also generates a
-        list of unique epitopes for sampling purposes.
-        """
         self.configs = configs
 
         # Using specific columns for features and labels

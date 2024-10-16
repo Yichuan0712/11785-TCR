@@ -24,8 +24,9 @@ contrastive_mode: "Triplet"
                   # "Triplet"
                   # "MultiPosNeg"
 negative_sampling_mode: "ExcludePos"
-                        #"ExcludePos"
-                        #"RandomNeg"
+                        # "ExcludePos"
+                        # "RandomNeg"
+                        # "HardNeg"
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,
