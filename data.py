@@ -124,6 +124,8 @@ class PytdcDatasetTriplet(Dataset):
             # Option 3: Hard negative samples mining
             all_options = set(self.TCR_epitope.keys())
             positive_options = set(self.epitope_TCR[anchor_epitope])
+            non_positive_options = list(all_options - positive_options)
+            negative_TCR = random.choice(non_positive_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
