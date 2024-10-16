@@ -133,18 +133,13 @@ class PytdcDatasetTriplet(Dataset):
                     distance_map = pickle.load(f)
                     nearest_list = distance_map.get(anchor_epitope)
                     print(anchor_epitope)
-                    if nearest_list != None:
+                    if nearest_list is not None:
                         neg_epitope_options = [i['epitope'] for i in nearest_list]
                         neg_options = set()
                         for i in neg_epitope_options:
                             neg_options |= set(self.epitope_TCR[i])
                         neg_options.discard(anchor_TCR)
                         neg_options = list(neg_options)
-                        print('不空', neg_epitope_options, neg_options)
-                    else:
-                        print('空的')
-                        # exit(0)
-
             negative_TCR = random.choice(neg_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
