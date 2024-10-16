@@ -139,7 +139,7 @@ class PytdcDatasetTriplet(Dataset):
                         neg_options = set()
                         print('不空', neg_epitope_options, neg_TCR_options)
                         for i in neg_TCR_options:
-                            neg_options += set(i)
+                            neg_options |= set(i)
                         neg_options -= anchor_TCR
                         neg_options = list(neg_options)
                     else:
