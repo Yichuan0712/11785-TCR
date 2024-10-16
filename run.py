@@ -134,9 +134,10 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
     if configs.negative_sampling_mode == 'HardNeg':
         log_dir = os.path.dirname(log_path)
         log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
-        # log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
         epitope_sums = {}
         epitope_counts = {}
+        nearest_neighbors = {}
 
     for batch, data in progress_bar:
         epitope_list = data['anchor_epitope']
@@ -165,7 +166,6 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 else:
                     epitope_sums[epitope] += anchor_emb[i]
                     epitope_counts[epitope] += 1
-
             epitope_data = {
                 epitope: {
                     "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
@@ -173,10 +173,33 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 }
                 for epitope in epitope_sums
             }
-
             with open(log_file_average, "wb") as f:
                 pickle.dump(epitope_data, f)
-                print(len(epitope_data))
+                # print(len(epitope_data))
+
+            for i, epitope1 in enumerate(epitope_list):
+                emb1 = torch.tensor(epitope_data[epitope1]["average_embedding"])
+                min_distance = float('inf')
+                nearest_epitope = None
+
+                for j, epitope2 in enumerate(epitope_list):
+                    if i == j:
+                        continue
+                    emb2 = torch.tensor(epitope_data[epitope2]["average_embedding"])
+                    distance = torch.dist(emb1, emb2)
+
+                    if distance < min_distance:
+                        min_distance = distance
+                        nearest_epitope = epitope2
+
+                # 存储当前 epitope 最近的 epitope 和距离
+                nearest_neighbors[epitope1] = {
+                    "nearest_epitope": nearest_epitope,
+                    "distance": min_distance
+                }
+
+            with open(log_file_distance, "wb") as f:
+                pickle.dump(nearest_neighbors, f)
 
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
