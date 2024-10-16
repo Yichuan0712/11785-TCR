@@ -176,6 +176,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
             with open(log_file_average, "wb") as f:
                 pickle.dump(epitope_data, f)
                 print(epitope_data)
+                print(len(epitope_data))
 
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
