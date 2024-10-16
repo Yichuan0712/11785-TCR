@@ -132,7 +132,7 @@ class PytdcDatasetTriplet(Dataset):
                 with open(log_file_distance, "rb") as f:
                     distance_map = pickle.load(f)
                     nearest_list = distance_map.get(anchor_epitope)
-                    print(anchor_epitope)
+                    # print(anchor_epitope)
                     if nearest_list is not None:
                         neg_epitope_options = [i['epitope'] for i in nearest_list]
                         neg_options = set()
