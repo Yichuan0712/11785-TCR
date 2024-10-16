@@ -177,24 +177,23 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 pickle.dump(epitope_data, f)
                 # print(len(epitope_data))
 
+            N = int(configs.hard_mining_sample_num)
+            nearest_neighbors = {}
+
             for i, epitope1 in enumerate(epitope_list):
                 emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-                min_distance = float('inf')
-                nearest_epitope = None
+                distances = []
 
                 for j, epitope2 in enumerate(epitope_list):
                     if i == j:
                         continue
                     emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
                     distance = torch.dist(emb1, emb2)
+                    distances.append((epitope2, distance))
 
-                    if distance < min_distance:
-                        min_distance = distance
-                        nearest_epitope = epitope2
-
+                distances.sort(key=lambda x: x[1])
                 nearest_neighbors[epitope1] = {
-                    "nearest_epitope": nearest_epitope,
-                    "distance": min_distance
+                    "nearest_epitopes": [{"epitope": epitope, "distance": dist} for epitope, dist in distances[:N]]
                 }
 
             with open(log_file_distance, "wb") as f:
