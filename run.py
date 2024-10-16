@@ -109,7 +109,7 @@ def main(parse_args, configs):
         for epoch in range(1, configs.epochs + 1):
             train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
-                dataloaders = get_dataloader(configs)
+                dataloaders = get_dataloader(configs, log_path=log_path)
     else:
         raise ValueError("Wrong contrastive mode specified.")
 
