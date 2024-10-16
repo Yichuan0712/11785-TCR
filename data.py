@@ -1,3 +1,6 @@
+import os
+import pickle
+
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
@@ -6,7 +9,7 @@ import random
 
 
 class PytdcDatasetTriplet(Dataset):
-    def __init__(self, dataframe, configs):
+    def __init__(self, dataframe, configs, log_path):
         """
         Initializes the PytdcDatasetTriplet dataset object.
 
@@ -19,6 +22,7 @@ class PytdcDatasetTriplet(Dataset):
         list of unique epitopes for sampling purposes.
         """
         self.configs = configs
+        self.log_path = log_path
 
         # Using specific columns for features and labels
         if configs.tcr_embedding_source == "BindingSite":
@@ -84,9 +88,6 @@ class PytdcDatasetTriplet(Dataset):
         """
         return len(self.full_list)
 
-    def hard_mine(self, anchor_TCR, anchor_epitope):
-        return
-
     def __getitem__(self, idx):
         """
         Retrieves a single data sample for the triplet-based contrastive learning task.
@@ -122,10 +123,16 @@ class PytdcDatasetTriplet(Dataset):
             negative_TCR = random.choice(non_positive_options)
         elif self.configs.negative_sampling_mode == 'HardNeg':
             # Option 3: Hard negative samples mining
-            all_options = set(self.TCR_epitope.keys())
-            positive_options = set(self.epitope_TCR[anchor_epitope])
-            non_positive_options = list(all_options - positive_options)
-            negative_TCR = random.choice(non_positive_options)
+            log_dir = os.path.dirname(self.log_path)
+            log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+            if os.path.exists(log_file_distance):
+                with open(log_file_distance, "rb") as f:
+                    data = pickle.load(f)
+            else:
+                all_options = set(self.TCR_epitope.keys())
+                positive_options = set(self.epitope_TCR[anchor_epitope])
+                neg_options = list(all_options - positive_options)
+            negative_TCR = random.choice(neg_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
@@ -236,13 +243,13 @@ class PytdcDatasetMulti(Dataset):
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
-def get_dataloader(configs):
+def get_dataloader(configs, log_path):
     if configs.dataset == "PyTDC":
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
         valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
-            train_dataset = PytdcDatasetTriplet(train_data, configs)
-            valid_dataset = PytdcDatasetTriplet(valid_data, configs)
+            train_dataset = PytdcDatasetTriplet(train_data, configs, log_path)
+            valid_dataset = PytdcDatasetTriplet(valid_data, configs, log_path)
         else:
             raise ValueError("Wrong contrastive mode specified.")
         if configs.batch_mode == "ByEpitope":

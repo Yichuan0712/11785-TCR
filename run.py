@@ -68,7 +68,7 @@ def main(parse_args, configs):
     Dataloader
     """
     printl(f"{'=' * 128}", log_path=log_path)
-    dataloaders = get_dataloader(configs)
+    dataloaders = get_dataloader(configs, log_path=log_path)
     printl(f'Number of Steps for Training Data: {len(dataloaders["train_loader"])}', log_path=log_path)
     printl(f'Number of Steps for Validation Data: {len(dataloaders["valid_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
@@ -131,14 +131,6 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
     else:
         raise ValueError("Invalid batch mode specified in configs.")
 
-    if configs.negative_sampling_mode == 'HardNeg':
-        log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
-        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
-        epitope_sums = {}
-        epitope_counts = {}
-        nearest_neighbors = {}
-
     for batch, data in progress_bar:
         epitope_list = data['anchor_epitope']
         anchor_list = data['anchor_TCR']
@@ -175,6 +167,12 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
     if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
+        log_dir = os.path.dirname(log_path)
+        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
+        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+        epitope_sums = {}
+        epitope_counts = {}
+        nearest_neighbors = {}
         for i, epitope in enumerate(epitope_list):
             if epitope not in epitope_sums:
                 epitope_sums[epitope] = anchor_emb[i]
@@ -209,9 +207,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 distances.append((epitope2, distance))
 
             distances.sort(key=lambda x: x[1])
-            nearest_neighbors[epitope1] = {
-                "nearest_epitopes": [{"epitope": epitope, "distance": dist} for epitope, dist in distances[:N]]
-            }
+            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in distances[:N]]
 
         with open(log_file_distance, "wb") as f:
             pickle.dump(nearest_neighbors, f)
