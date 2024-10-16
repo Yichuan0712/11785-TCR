@@ -28,7 +28,7 @@ negative_sampling_mode: "HardNeg"
                         # "RandomNeg"
                         # "HardNeg"
 hard_neg_mining_sample_num: 10
-hard_neg_mining_adaptive_rate: 3
+hard_neg_mining_adaptive_rate: 1
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,

@@ -125,13 +125,19 @@ class PytdcDatasetTriplet(Dataset):
             # Option 3: Hard negative samples mining
             log_dir = os.path.dirname(self.log_path)
             log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+            all_options = set(self.TCR_epitope.keys())
+            positive_options = set(self.epitope_TCR[anchor_epitope])
+            neg_options = list(all_options - positive_options)
             if os.path.exists(log_file_distance):
                 with open(log_file_distance, "rb") as f:
-                    data = pickle.load(f)
-            else:
-                all_options = set(self.TCR_epitope.keys())
-                positive_options = set(self.epitope_TCR[anchor_epitope])
-                neg_options = list(all_options - positive_options)
+                    distance_map = pickle.load(f)
+                    nearest_list = distance_map.get(anchor_epitope)
+                    if nearest_list != None:
+                        neg_options = [i for i in nearest_list['epitope']]
+                    else:
+                        print('空的', anchor_epitope)
+                        exit(0)
+
             negative_TCR = random.choice(neg_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
