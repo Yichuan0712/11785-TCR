@@ -164,6 +164,8 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                     epitope_counts[epitope] = 1
                 epitope_sums[epitope] += anchor_emb[i]
                 epitope_counts[epitope] += 1
+                if epitope_counts[epitope] > 2:
+                    print('!')
 
             epitope_data = {
                 epitope: {
@@ -175,7 +177,6 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
             with open(log_file_average, "wb") as f:
                 pickle.dump(epitope_data, f)
-                print(epitope_data)
                 print(len(epitope_data))
 
         loss = criterion(anchor_emb, positive_emb, negative_emb)
