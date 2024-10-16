@@ -180,11 +180,12 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
             N = int(configs.hard_mining_sample_num)
             nearest_neighbors = {}
 
-            for i, epitope1 in enumerate(epitope_list):
+            epitopes = list(epitope_data.keys())
+            for i, epitope1 in enumerate(epitopes):
                 emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
                 distances = []
 
-                for j, epitope2 in enumerate(epitope_list):
+                for j, epitope2 in enumerate(epitopes):
                     if i == j:
                         continue
                     emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
