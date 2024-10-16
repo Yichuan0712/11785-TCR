@@ -159,14 +159,13 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
         if configs.negative_sampling_mode == 'HardNeg':
             for i, epitope in enumerate(epitope_list):
-                if epitope not in epitope_sums.keys():
+                if epitope not in epitope_sums:
                     epitope_sums[epitope] = anchor_emb[i]
                     epitope_counts[epitope] = 1
                 else:
+                    print(f"重复的 epitope: {epitope}")
                     print("!")
                     exit(0)
-                    epitope_sums[epitope] += anchor_emb[i]
-                    epitope_counts[epitope] += 1
 
             epitope_data = {
                 epitope: {
