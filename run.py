@@ -216,7 +216,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         with open(log_file_distance, "wb") as f:
             pickle.dump(nearest_neighbors, f)
 
-        printl(f"Epoch [{epoch}] distance map updated.", log_path=log_path)
+        printl(f"Distance map updated.", log_path=log_path)
 
 
 if __name__ == "__main__":
