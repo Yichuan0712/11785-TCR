@@ -162,10 +162,12 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 if epitope not in epitope_sums:
                     epitope_sums[epitope] = anchor_emb[i]
                     epitope_counts[epitope] = 1
-                epitope_sums[epitope] += anchor_emb[i]
-                epitope_counts[epitope] += 1
-                if epitope_counts[epitope] > 2:
-                    print('!')
+                else:
+                    print("!")
+                    exit(0)
+                    epitope_sums[epitope] += anchor_emb[i]
+                    epitope_counts[epitope] += 1
+
 
             epitope_data = {
                 epitope: {
