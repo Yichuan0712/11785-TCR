@@ -84,8 +84,9 @@ class PytdcDatasetTriplet(Dataset):
         """
         return len(self.full_list)
 
-    def hard_mine(self):
+    def hard_mine(self, anchor_TCR, anchor_epitope):
         return
+
     def __getitem__(self, idx):
         """
         Retrieves a single data sample for the triplet-based contrastive learning task.
@@ -120,6 +121,7 @@ class PytdcDatasetTriplet(Dataset):
             non_positive_options = list(all_options - positive_options)
             negative_TCR = random.choice(non_positive_options)
         elif self.configs.negative_sampling_mode == 'HardNeg':
+            # Option 3: Hard negative samples mining
             all_options = set(self.TCR_epitope.keys())
             positive_options = set(self.epitope_TCR[anchor_epitope])
         else:

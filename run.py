@@ -1,4 +1,6 @@
 import argparse
+import pickle
+
 import yaml
 from util import printl, printl_file
 from util import prepare_saving_dir
@@ -11,6 +13,7 @@ from data import get_dataloader
 from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 from tqdm import tqdm
+import os
 
 
 def main(parse_args, configs):
@@ -105,7 +108,8 @@ def main(parse_args, configs):
         printl(f"{'=' * 128}", log_path=log_path)
         for epoch in range(1, configs.epochs + 1):
             train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
-
+            if configs.negative_sampling_mode == 'HardNeg':
+                dataloaders = get_dataloader(configs)
     else:
         raise ValueError("Wrong contrastive mode specified.")
 
@@ -127,6 +131,13 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
     else:
         raise ValueError("Invalid batch mode specified in configs.")
 
+    if configs.negative_sampling_mode == 'HardNeg':
+        log_dir = os.path.dirname(log_path)
+        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
+        # log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+        epitope_sums = {}
+        epitope_counts = {}
+
     for batch, data in progress_bar:
         epitope_list = data['anchor_epitope']
         anchor_list = data['anchor_TCR']
@@ -145,6 +156,22 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         anchor_emb = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
         positive_emb = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
         negative_emb = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
+
+        if configs.negative_sampling_mode == 'HardNeg':
+            for i, epitope in enumerate(epitope_list):
+                epitope_sums[epitope] += anchor_emb[i]
+                epitope_counts[epitope] += 1
+
+            epitope_data = {
+                epitope: {
+                    "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
+                    "count": epitope_counts[epitope]
+                }
+                for epitope in epitope_sums
+            }
+
+            with open(log_file_average, "wb") as f:
+                pickle.dump(epitope_data, f)
 
         loss = criterion(anchor_emb, positive_emb, negative_emb)
 
