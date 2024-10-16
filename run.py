@@ -158,6 +158,22 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         positive_emb = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
         negative_emb = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
 
+        loss = criterion(anchor_emb, positive_emb, negative_emb)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        schedular.step()
+
+        total_loss += loss.item()
+
+        if configs.batch_mode == "Regular":
+            progress_bar.set_postfix(loss=loss.item())
+
+    avg_loss = total_loss / len(train_loader)
+    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
+
     if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
         for i, epitope in enumerate(epitope_list):
             if epitope not in epitope_sums:
@@ -200,21 +216,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         with open(log_file_distance, "wb") as f:
             pickle.dump(nearest_neighbors, f)
 
-        loss = criterion(anchor_emb, positive_emb, negative_emb)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        schedular.step()
-
-        total_loss += loss.item()
-
-        if configs.batch_mode == "Regular":
-            progress_bar.set_postfix(loss=loss.item())
-
-    avg_loss = total_loss / len(train_loader)
-    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
+        printl(f"Distance map updated.", log_path=log_path)
 
 
 if __name__ == "__main__":
