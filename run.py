@@ -178,21 +178,20 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
                 # print(len(epitope_data))
 
             for i, epitope1 in enumerate(epitope_list):
-                emb1 = torch.tensor(epitope_data[epitope1]["average_embedding"])
+                emb1 = torch.tensor(epitope_data[epitope1]["average_embedding"]).clone().detach()
                 min_distance = float('inf')
                 nearest_epitope = None
 
                 for j, epitope2 in enumerate(epitope_list):
                     if i == j:
                         continue
-                    emb2 = torch.tensor(epitope_data[epitope2]["average_embedding"])
+                    emb2 = torch.tensor(epitope_data[epitope2]["average_embedding"]).clone().detach()
                     distance = torch.dist(emb1, emb2)
 
                     if distance < min_distance:
                         min_distance = distance
                         nearest_epitope = epitope2
 
-                # 存储当前 epitope 最近的 epitope 和距离
                 nearest_neighbors[epitope1] = {
                     "nearest_epitope": nearest_epitope,
                     "distance": min_distance
