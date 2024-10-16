@@ -106,9 +106,12 @@ def main(parse_args, configs):
         criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
         printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
+        nearest_neighbors = None
         for epoch in range(1, configs.epochs + 1):
-            nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
+            _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
+                if _nearest_neighbors is not None:
+                    nearest_neighbors = _nearest_neighbors
                 dataloaders = get_dataloader(configs, nearest_neighbors=nearest_neighbors)
     else:
         raise ValueError("Wrong contrastive mode specified.")
