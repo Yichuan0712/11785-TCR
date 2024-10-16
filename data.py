@@ -136,7 +136,12 @@ class PytdcDatasetTriplet(Dataset):
                     if nearest_list != None:
                         neg_epitope_options = [i['epitope'] for i in nearest_list]
                         neg_TCR_options = [self.epitope_TCR[i] for i in neg_epitope_options]
+                        neg_options = set()
                         print('不空', neg_epitope_options, neg_TCR_options)
+                        for i in neg_TCR_options:
+                            neg_options += set(i)
+                        neg_options -= anchor_TCR
+                        neg_options = list(neg_options)
                     else:
                         print('空的')
                         # exit(0)
