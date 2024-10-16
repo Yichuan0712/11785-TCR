@@ -114,12 +114,12 @@ class PytdcDatasetTriplet(Dataset):
         # Select a negative TCR based on configuration setting
         if self.configs.negative_sampling_mode == 'RandomNeg':
             # Option 1: Randomly select from negative pairs
-            negative_TCR = random.choice(self.epitope_TCR_neg[anchor_epitope])
+            negative_TCR = random.choice(list(set(self.epitope_TCR_neg[anchor_epitope])-anchor_TCR))
         elif self.configs.negative_sampling_mode == 'ExcludePos':
             # Option 2: Exclude all positive samples and randomly select
             all_options = set(self.TCR_epitope.keys())
             positive_options = set(self.epitope_TCR[anchor_epitope])
-            non_positive_options = list(all_options - positive_options)
+            non_positive_options = list(all_options-positive_options)
             negative_TCR = random.choice(non_positive_options)
         elif self.configs.negative_sampling_mode == 'HardNeg':
             # Option 3: Hard negative samples mining
@@ -132,11 +132,14 @@ class PytdcDatasetTriplet(Dataset):
                 with open(log_file_distance, "rb") as f:
                     distance_map = pickle.load(f)
                     nearest_list = distance_map.get(anchor_epitope)
+                    print(anchor_epitope)
                     if nearest_list != None:
-                        neg_options = [i for i in nearest_list['epitope']]
+                        neg_epitope_options = [i['epitope'] for i in nearest_list]
+                        neg_TCR_options = [self.epitope_TCR[i] for i in neg_epitope_options]
+                        print('不空', neg_epitope_options, neg_TCR_options)
                     else:
-                        print('空的', anchor_epitope)
-                        exit(0)
+                        print('空的')
+                        # exit(0)
 
             negative_TCR = random.choice(neg_options)
         else:
