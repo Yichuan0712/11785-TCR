@@ -68,7 +68,7 @@ def main(parse_args, configs):
     Dataloader
     """
     printl(f"{'=' * 128}", log_path=log_path)
-    dataloaders = get_dataloader(configs, log_path=log_path)
+    dataloaders = get_dataloader(configs, nearest_neighbors=None)
     printl(f'Number of Steps for Training Data: {len(dataloaders["train_loader"])}', log_path=log_path)
     printl(f'Number of Steps for Validation Data: {len(dataloaders["valid_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
@@ -107,9 +107,9 @@ def main(parse_args, configs):
         printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         for epoch in range(1, configs.epochs + 1):
-            train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
+            nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
-                dataloaders = get_dataloader(configs, log_path=log_path)
+                dataloaders = get_dataloader(configs, nearest_neighbors=nearest_neighbors)
     else:
         raise ValueError("Wrong contrastive mode specified.")
 
@@ -172,7 +172,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
         epitope_sums = {}
         epitope_counts = {}
-        nearest_neighbors = {}
+
         for i, epitope in enumerate(epitope_list):
             if epitope not in epitope_sums:
                 epitope_sums[epitope] = anchor_emb[i]
@@ -213,6 +213,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
             pickle.dump(nearest_neighbors, f)
 
         printl(f"Distance map updated.", log_path=log_path)
+        return nearest_neighbors
 
 
 if __name__ == "__main__":

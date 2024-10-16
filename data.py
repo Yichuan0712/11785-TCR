@@ -9,7 +9,7 @@ import random
 
 
 class PytdcDatasetTriplet(Dataset):
-    def __init__(self, dataframe, configs, log_path):
+    def __init__(self, dataframe, configs, nearest_neighbors):
         """
         Initializes the PytdcDatasetTriplet dataset object.
 
@@ -22,7 +22,7 @@ class PytdcDatasetTriplet(Dataset):
         list of unique epitopes for sampling purposes.
         """
         self.configs = configs
-        self.log_path = log_path
+        self.nearest_neighbors = nearest_neighbors
 
         # Using specific columns for features and labels
         if configs.tcr_embedding_source == "BindingSite":
@@ -123,23 +123,19 @@ class PytdcDatasetTriplet(Dataset):
             negative_TCR = random.choice(non_positive_options)
         elif self.configs.negative_sampling_mode == 'HardNeg':
             # Option 3: Hard negative samples mining
-            log_dir = os.path.dirname(self.log_path)
-            log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
             all_options = set(self.TCR_epitope.keys())
             positive_options = set(self.epitope_TCR[anchor_epitope])
             neg_options = list(all_options - positive_options)
-            if os.path.exists(log_file_distance):
-                with open(log_file_distance, "rb") as f:
-                    distance_map = pickle.load(f)
-                    nearest_list = distance_map.get(anchor_epitope)
-                    # print(anchor_epitope)
-                    if nearest_list is not None:
-                        neg_epitope_options = [i['epitope'] for i in nearest_list]
-                        neg_options = set()
-                        for i in neg_epitope_options:
-                            neg_options |= set(self.epitope_TCR[i])
-                        neg_options.discard(anchor_TCR)
-                        neg_options = list(neg_options)
+            if self.nearest_neighbors is not None:
+                nearest_list = self.nearest_neighbors.get(anchor_epitope)
+                # print(anchor_epitope)
+                if nearest_list is not None:
+                    neg_epitope_options = [i['epitope'] for i in nearest_list]
+                    neg_options = set()
+                    for i in neg_epitope_options:
+                        neg_options |= set(self.epitope_TCR[i])
+                    neg_options.discard(anchor_TCR)
+                    neg_options = list(neg_options)
             negative_TCR = random.choice(neg_options)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
@@ -251,13 +247,13 @@ class PytdcDatasetMulti(Dataset):
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
-def get_dataloader(configs, log_path):
+def get_dataloader(configs, nearest_neighbors):
     if configs.dataset == "PyTDC":
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
         valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
-            train_dataset = PytdcDatasetTriplet(train_data, configs, log_path)
-            valid_dataset = PytdcDatasetTriplet(valid_data, configs, log_path)
+            train_dataset = PytdcDatasetTriplet(train_data, configs, nearest_neighbors)
+            valid_dataset = PytdcDatasetTriplet(valid_data, configs, nearest_neighbors)
         else:
             raise ValueError("Wrong contrastive mode specified.")
         if configs.batch_mode == "ByEpitope":
