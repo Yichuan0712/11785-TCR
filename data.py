@@ -277,8 +277,14 @@ class PytdcDatasetMulti(Dataset):
         print("anc", anchor_TCR)
         print("pos", positive_TCR)
         print("neg", negative_TCR)
+
+        anchor_positive_negative_TCR = [anchor_TCR]
+        anchor_positive_negative_TCR.extend(positive_TCR)
+        anchor_positive_negative_TCR.extend(negative_TCR)
+        print(anchor_positive_negative_TCR)
+        print(len(anchor_positive_negative_TCR))
         exit(0)
-        return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
+        return {'anchor_epitope': anchor_epitope, 'anchor_positive_negative_TCR': anchor_positive_negative_TCR}
 
 
 
