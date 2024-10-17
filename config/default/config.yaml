@@ -6,7 +6,7 @@ tcr_embedding_source: "BindingSite"
 batch_mode: "Regular"
               # "ByEpitope"
               # "Regular"
-batch_size: 128  # 192
+batch_size: 256  # 192
 epochs: 100
 max_learning_rate: 3e-4
 min_learning_rate: 0
@@ -23,8 +23,8 @@ schedular_gamma: 1
 contrastive_mode: "MultiPosNeg"
                   # "Triplet"
                   # "MultiPosNeg"
-n_pos: 1
-n_neg: 2
+n_pos: 2
+n_neg: 3
 temp: 0.1
 
 negative_sampling_mode: "HardNeg"
@@ -32,7 +32,7 @@ negative_sampling_mode: "HardNeg"
                         # "RandomNeg"
                         # "HardNeg"
 hard_neg_mining_sample_num: 1
-hard_neg_mining_adaptive_rate: 3
+hard_neg_mining_adaptive_rate: 1
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,
