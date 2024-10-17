@@ -142,7 +142,7 @@ class PytdcDatasetTriplet(Dataset):
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
-class PytdcDatasetTriplet(Dataset):
+class PytdcDatasetMulti(Dataset):
     def __init__(self, dataframe, configs, nearest_neighbors):
         """
         Initializes the PytdcDatasetTriplet dataset object.
