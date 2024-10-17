@@ -25,6 +25,7 @@ contrastive_mode: "MultiPosNeg"
                   # "MultiPosNeg"
 n_pos: 1
 n_neg: 2
+temp: 0.1
 
 negative_sampling_mode: "HardNeg"
                         # "ExcludePos"

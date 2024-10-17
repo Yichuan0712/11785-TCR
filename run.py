@@ -253,19 +253,19 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         for element in data:
             epitope_list.append(element['anchor_epitope'])
             anc_pos_neg_mini_batch = [(None, str(element['anchor_positive_negative_TCR'][i])) for i in range(len(element['anchor_positive_negative_TCR']))]
-            print(anc_pos_neg_mini_batch)
+            # print(anc_pos_neg_mini_batch)
             _, _, anc_pos_neg_tokens_mini_batch = tokenizer(anc_pos_neg_mini_batch)
-            print(anc_pos_neg_tokens_mini_batch)
+            # print(anc_pos_neg_tokens_mini_batch)
             anc_pos_neg_emb_mini_batch = projection_head(encoder(anc_pos_neg_tokens_mini_batch.to(device)).mean(dim=1))
-            print(anc_pos_neg_emb_mini_batch)
-            print(anc_pos_neg_emb_mini_batch.shape)
-            exit(0)
+            # print(anc_pos_neg_emb_mini_batch)
+            # print(anc_pos_neg_emb_mini_batch.shape)
+            # exit(0)
             anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
         anchor_positive_negative = torch.stack(anchor_positive_negative_list)
-        print(anchor_positive_negative.shape)
-        exit(0)
+        # print(anchor_positive_negative.shape)
+        # exit(0)
 
-        loss = criterion(anchor_emb, positive_emb, negative_emb)
+        loss = criterion(anchor_positive_negative, configs.temp, configs.n_pos)
 
         optimizer.zero_grad()
         loss.backward()
