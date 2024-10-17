@@ -255,6 +255,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
             anc_pos_neg_mini_batch = [(None, str(element['anchor_positive_negative_TCR'][i])) for i in range(len(element['anchor_positive_negative_TCR']))]
             print(anc_pos_neg_mini_batch)
             _, _, anc_pos_neg_tokens = tokenizer(anc_pos_neg_mini_batch)
+            print(anc_pos_neg_tokens)
             exit(0)
 
         print(data)
