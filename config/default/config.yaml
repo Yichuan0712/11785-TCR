@@ -27,7 +27,7 @@ n_pos: 2
 n_neg: 3
 temp: 0.1
 
-negative_sampling_mode: "ExcludePos"
+negative_sampling_mode: "RandomNeg"
                         # "ExcludePos"
                         # "RandomNeg"
                         # "HardNeg"
