@@ -283,7 +283,7 @@ class PytdcDatasetMulti(Dataset):
         anchor_positive_negative_TCR.extend(negative_TCR)
         print(anchor_positive_negative_TCR)
         print(len(anchor_positive_negative_TCR))
-        exit(0)
+        # exit(0)
         return {'anchor_epitope': anchor_epitope, 'anchor_positive_negative_TCR': anchor_positive_negative_TCR}
 
 
