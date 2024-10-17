@@ -248,6 +248,8 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         raise ValueError("Invalid batch mode specified in configs.")
 
     for batch, data in progress_bar:
+        print(data)
+        exit(0)
         epitope_list = data['anchor_epitope']
         anchor_positive_negative_list = data['anchor_positive_negative_TCR']
 
