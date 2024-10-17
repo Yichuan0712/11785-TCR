@@ -3,7 +3,7 @@ description: "ContraTCR Colab Test"
 dataset: "PyTDC"
 tcr_embedding_source: "BindingSite"
           # "Full"
-batch_mode: "Regular"
+batch_mode: "ByEpitope"
               # "ByEpitope"
               # "Regular"
 batch_size: 256  # 192
