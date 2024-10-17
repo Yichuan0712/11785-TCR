@@ -262,9 +262,9 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
             # exit(0)
             anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
         anchor_positive_negative = torch.stack(anchor_positive_negative_list)
-        print(len(epitope_list), epitope_list)
-        print(anchor_positive_negative.shape)
-        exit(0)
+        # print(len(epitope_list), epitope_list)
+        # print(anchor_positive_negative.shape)
+        # exit(0)
 
         loss = criterion(anchor_positive_negative, configs.temp, configs.n_pos)
 
@@ -291,10 +291,10 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
 
         for i, epitope in enumerate(epitope_list):
             if epitope not in epitope_sums:
-                epitope_sums[epitope] = anchor_emb[i]
+                epitope_sums[epitope] = anchor_positive_negative[i][0]
                 epitope_counts[epitope] = 1
             else:
-                epitope_sums[epitope] += anchor_emb[i]
+                epitope_sums[epitope] += anchor_positive_negative[i][0]
                 epitope_counts[epitope] += 1
         epitope_data = {
             epitope: {
