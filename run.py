@@ -247,24 +247,23 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
     else:
         raise ValueError("Invalid batch mode specified in configs.")
 
+    anchor_positive_negative = []
     for batch, data in progress_bar:
         epitope_list = []
         anchor_positive_negative_list = []
         for element in data:
             epitope_list.append(element['anchor_epitope'])
             anc_pos_neg_mini_batch = [(None, str(element['anchor_positive_negative_TCR'][i])) for i in range(len(element['anchor_positive_negative_TCR']))]
-            print(anc_pos_neg_mini_batch)
+            # print(anc_pos_neg_mini_batch)
             _, _, anc_pos_neg_tokens_mini_batch = tokenizer(anc_pos_neg_mini_batch)
-            print(anc_pos_neg_tokens_mini_batch)
+            # print(anc_pos_neg_tokens_mini_batch)
             anc_pos_neg_emb_mini_batch = projection_head(encoder(anc_pos_neg_tokens_mini_batch.to(device)).mean(dim=1))
-            print(anc_pos_neg_emb_mini_batch)
-            print(anc_pos_neg_emb_mini_batch.shape)
+            # print(anc_pos_neg_emb_mini_batch)
+            # print(anc_pos_neg_emb_mini_batch.shape)
             anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
-        epitope_list = data['anchor_epitope']
-        anchor_positive_negative_list = data['anchor_positive_negative_TCR']
-        anchor_positive_negative = torch.cat(anchor_positive_negative_list)
-        print(anchor_positive_negative.shape)
-        exit(0)
+    anchor_positive_negative = torch.cat(anchor_positive_negative_list)
+    print(anchor_positive_negative.shape)
+    exit(0)
 
     #     anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
     #     _, _, anchor_tokens = tokenizer(anchor_seq_batch)
