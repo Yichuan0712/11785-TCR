@@ -258,6 +258,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
             print(anc_pos_neg_tokens_mini_batch)
             anc_pos_neg_emb_mini_batch = projection_head(encoder(anc_pos_neg_tokens_mini_batch.to(device)).mean(dim=1))
             print(anc_pos_neg_emb_mini_batch)
+            print(anc_pos_neg_emb_mini_batch.shape)
             exit(0)
 
         print(data)
