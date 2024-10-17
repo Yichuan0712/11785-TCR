@@ -274,6 +274,10 @@ class PytdcDatasetMulti(Dataset):
             negative_TCR = random.sample(neg_options, self.n_neg)
         else:
             raise ValueError("Invalid negative sampling strategy specified in configs.")
+        print("anc", anchor_TCR)
+        print("pos", positive_TCR)
+        print("neg", negative_TCR)
+        exit(0)
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR, 'positive_TCR': positive_TCR, 'negative_TCR': negative_TCR}
 
 
