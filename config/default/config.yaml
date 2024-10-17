@@ -24,7 +24,7 @@ contrastive_mode: "MultiPosNeg"
                   # "Triplet"
                   # "MultiPosNeg"
 n_pos: 1
-n_neg: 1
+n_neg: 2
 
 negative_sampling_mode: "HardNeg"
                         # "ExcludePos"
