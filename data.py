@@ -114,7 +114,15 @@ class PytdcDatasetTriplet(Dataset):
         # Select a negative TCR based on configuration setting
         if self.configs.negative_sampling_mode == 'RandomNeg':
             # Option 1: Randomly select from negative pairs
-            negative_TCR = random.choice(self.epitope_TCR_neg[anchor_epitope])
+            negative_TCR_candidates = list(set(self.epitope_TCR_neg.get(anchor_epitope, [])) - {anchor_TCR})
+            if not negative_TCR_candidates:
+                # Fallback to 'ExcludePos' method if no negative candidates are found
+                all_options = set(self.TCR_epitope.keys())
+                positive_options = set(self.epitope_TCR[anchor_epitope])
+                negative_TCR_candidates = list(all_options - positive_options)
+            if len(negative_TCR_candidates) < self.n_neg:
+                negative_TCR_candidates = negative_TCR_candidates * (self.n_neg // len(negative_TCR_candidates) + 1)
+            negative_TCR = random.choice(negative_TCR_candidates)
         elif self.configs.negative_sampling_mode == 'ExcludePos':
             # Option 2: Exclude all positive samples and randomly select
             all_options = set(self.TCR_epitope.keys())
