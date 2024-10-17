@@ -72,7 +72,7 @@ def main(parse_args, configs):
     printl(f"{'=' * 128}", log_path=log_path)
     dataloaders = get_dataloader(configs, nearest_neighbors=None)
     printl(f'Number of Steps for Training Data: {len(dataloaders["train_loader"])}', log_path=log_path)
-    printl(f'Number of Steps for Validation Data: {len(dataloaders["valid_loader"])}', log_path=log_path)
+    # printl(f'Number of Steps for Validation Data: {len(dataloaders["valid_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
     printl("Data loading complete.", log_path=log_path)
     """

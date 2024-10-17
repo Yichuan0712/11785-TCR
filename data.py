@@ -305,13 +305,13 @@ def preserve_structure_collate_fn(batch):
 def get_dataloader(configs, nearest_neighbors):
     if configs.dataset == "PyTDC":
         train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
-        valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
+        # valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
             train_dataset = PytdcDatasetTriplet(train_data, configs, nearest_neighbors)
-            valid_dataset = PytdcDatasetTriplet(valid_data, configs, nearest_neighbors)
+            # valid_dataset = PytdcDatasetTriplet(valid_data, configs, nearest_neighbors)
         elif configs.contrastive_mode == "MultiPosNeg":
             train_dataset = PytdcDatasetMulti(train_data, configs, nearest_neighbors)
-            valid_dataset = PytdcDatasetMulti(valid_data, configs, nearest_neighbors)
+            # valid_dataset = PytdcDatasetMulti(valid_data, configs, nearest_neighbors)
         else:
             raise ValueError("Wrong contrastive mode specified.")
         if configs.batch_mode == "ByEpitope":
@@ -323,11 +323,11 @@ def get_dataloader(configs, nearest_neighbors):
 
         if configs.contrastive_mode == "Triplet":
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
-            valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
+            # valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
         elif configs.contrastive_mode == "MultiPosNeg":
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=preserve_structure_collate_fn)  # , drop_last=True)
-            valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=preserve_structure_collate_fn)
-        return {'train_loader': train_loader, 'valid_loader': valid_loader,
+            # valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=preserve_structure_collate_fn)
+        return {'train_loader': train_loader, 'valid_loader': None,  # valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
