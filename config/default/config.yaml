@@ -23,6 +23,9 @@ schedular_gamma: 1
 contrastive_mode: "MultiPosNeg"
                   # "Triplet"
                   # "MultiPosNeg"
+n_pos: 2
+n_neg: 3
+
 negative_sampling_mode: "HardNeg"
                         # "ExcludePos"
                         # "RandomNeg"
