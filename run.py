@@ -328,7 +328,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         with open(log_file_distance, "wb") as f:
             pickle.dump(nearest_neighbors, f)
 
-        printl(f"Distance map updated.", log_path=log_path)
+        printl(f"Distance map updated.", log_path=log_path)  # 慢, 得查查为什么
         return nearest_neighbors
 
 
