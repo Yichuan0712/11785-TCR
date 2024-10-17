@@ -260,7 +260,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
             print(anc_pos_neg_emb_mini_batch)
             print(anc_pos_neg_emb_mini_batch.shape)
             anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
-        anchor_positive_negative = torch.cat(anchor_positive_negative_list)
+        anchor_positive_negative = torch.stack(anchor_positive_negative_list)
         print(anchor_positive_negative.shape)
         exit(0)
 
