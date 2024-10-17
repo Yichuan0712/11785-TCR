@@ -253,9 +253,9 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         positive_list = data['positive_TCR']
         negative_list = data['negative_TCR']
 
-        print(anchor_list.shape)
+        # print(anchor_list)
         print(positive_list)
-        print(negative_list.shape)
+        # print(negative_list)
         exit(0)
 
     #     anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
