@@ -284,8 +284,11 @@ class PytdcDatasetMulti(Dataset):
         print(anchor_positive_negative_TCR)
         print(len(anchor_positive_negative_TCR))
         # exit(0)
-        return {'anchor_epitope': anchor_epitope, 'anchor_positive_negative_TCR': [(tuple(anchor_positive_negative_TCR),)]}
+        return {'anchor_epitope': anchor_epitope, 'anchor_positive_negative_TCR': anchor_positive_negative_TCR}
 
+
+def preserve_structure_collate_fn(batch):
+    return batch
 
 
 def get_dataloader(configs, nearest_neighbors):
@@ -306,8 +309,13 @@ def get_dataloader(configs, nearest_neighbors):
             batch_size = configs.batch_size
         else:
             raise ValueError("Invalid batch mode specified in configs.")
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
-        valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
+
+        if configs.contrastive_mode == "Triplet":
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
+            valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
+        elif configs.contrastive_mode == "MultiPosNeg":
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=preserve_structure_collate_fn)  # , drop_last=True)
+            valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=preserve_structure_collate_fn)
         return {'train_loader': train_loader, 'valid_loader': valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
