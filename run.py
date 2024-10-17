@@ -254,7 +254,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         negative_list = data['negative_TCR']
 
         # print(anchor_list)
-        print(positive_list)
+        print(len(positive_list[0]))
         # print(negative_list)
         exit(0)
 
