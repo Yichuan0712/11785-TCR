@@ -259,18 +259,11 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
             anc_pos_neg_emb_mini_batch = projection_head(encoder(anc_pos_neg_tokens_mini_batch.to(device)).mean(dim=1))
             print(anc_pos_neg_emb_mini_batch)
             print(anc_pos_neg_emb_mini_batch.shape)
-            exit(0)
-
-        print(data)
-        print(len(data))
-        exit(0)
+            anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
         epitope_list = data['anchor_epitope']
         anchor_positive_negative_list = data['anchor_positive_negative_TCR']
-
-
-        # print(anchor_list)
-        print(anchor_positive_negative_list[0])
-        # print(negative_list)
+        anchor_positive_negative = torch.cat(anchor_positive_negative_list)
+        print(anchor_positive_negative.shape)
         exit(0)
 
     #     anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
