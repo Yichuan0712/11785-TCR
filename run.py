@@ -434,6 +434,8 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         printl(f"Distance map updated.", log_path=log_path)
         return nearest_neighbors
 
+    return None
+
 
 def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, configs, log_path):
     device = torch.device("cuda")
@@ -536,6 +538,12 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
 
         printl(f"Distance map updated.", log_path=log_path)  # 慢, 得查查为什么
         return nearest_neighbors
+
+    return None
+
+
+def infer_maxsep(encoder, projection_head):
+    return None
 
 
 if __name__ == "__main__":
