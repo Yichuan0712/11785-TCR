@@ -450,6 +450,13 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
     else:
         raise ValueError("Invalid batch mode specified in configs.")
 
+    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
+        log_dir = os.path.dirname(log_path)
+        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
+        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
+        epitope_sums = {}
+        epitope_counts = {}
+
     for batch, data in progress_bar:
         epitope_list = []
         anchor_positive_negative_list = []
@@ -482,51 +489,47 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         if configs.batch_mode == "Regular":
             progress_bar.set_postfix(loss=loss.item())
 
+        if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
+            for i, epitope in enumerate(epitope_list):
+                if epitope not in epitope_sums:
+                    epitope_sums[epitope] = anchor_positive_negative[i][0]
+                    epitope_counts[epitope] = 1
+                else:
+                    epitope_sums[epitope] += anchor_positive_negative[i][0]
+                    epitope_counts[epitope] += 1
+            epitope_data = {
+                epitope: {
+                    "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
+                    "count": epitope_counts[epitope]
+                }
+                for epitope in epitope_sums
+            }
+
+            N = int(configs.hard_neg_mining_sample_num)
+            nearest_neighbors = {}
+
+            for i, epitope1 in enumerate(epitope_data.keys()):
+                emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
+                distances = []
+
+                for j, epitope2 in enumerate(epitope_data.keys()):
+                    if i == j:
+                        continue
+                    emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
+                    distance = torch.dist(emb1, emb2)
+                    distances.append((epitope2, distance))
+
+                distances.sort(key=lambda x: x[1])
+                nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
+                                               distances[:N]]
+
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
     if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
-        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
-        epitope_sums = {}
-        epitope_counts = {}
-
-        for i, epitope in enumerate(epitope_list):
-            if epitope not in epitope_sums:
-                epitope_sums[epitope] = anchor_positive_negative[i][0]
-                epitope_counts[epitope] = 1
-            else:
-                epitope_sums[epitope] += anchor_positive_negative[i][0]
-                epitope_counts[epitope] += 1
-        epitope_data = {
-            epitope: {
-                "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-                "count": epitope_counts[epitope]
-            }
-            for epitope in epitope_sums
-        }
         with open(log_file_average, "wb") as f:
             pickle.dump(epitope_data, f)
             # print(len(epitope_data))
-
-        N = int(configs.hard_neg_mining_sample_num)
-        nearest_neighbors = {}
-
-        epitopes = list(epitope_data.keys())
-        for i, epitope1 in enumerate(epitopes):
-            emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-            distances = []
-
-            for j, epitope2 in enumerate(epitopes):
-                if i == j:
-                    continue
-                emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                distance = torch.dist(emb1, emb2)
-                distances.append((epitope2, distance))
-
-            distances.sort(key=lambda x: x[1])
-            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in distances[:N]]
 
         with open(log_file_distance, "wb") as f:
             pickle.dump(nearest_neighbors, f)
