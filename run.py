@@ -349,7 +349,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
     if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
         log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
+        log_file_average = os.path.join(log_dir, "epitope_average.pkl")
         log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
         epitope_sums = {}
         epitope_counts = {}
@@ -452,7 +452,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
 
     if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
         log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_averages.pkl")
+        log_file_average = os.path.join(log_dir, "epitope_average.pkl")
         log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
         epitope_sums = {}
         epitope_counts = {}
