@@ -20,7 +20,7 @@ schedular_first_cycle_steps: 100
 schedular_warmup_epochs: 0
 schedular_gamma: 1
 
-contrastive_mode: "MultiPosNeg"
+contrastive_mode: "Triplet"
                   # "Triplet"
                   # "MultiPosNeg"
 n_pos: 2
