@@ -80,32 +80,46 @@ def main(parse_args, configs):
     """
     Model
     """
-    printl(f"{'=' * 128}", log_path=log_path)
-    encoder, projection_head = prepare_models(configs, log_path=log_path)
-    device = torch.device("cuda")
-    encoder.to(device)
-    projection_head.to(device)
-    printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
+    if parse_args.mode == 'train' and parse_args.resume_path is None:
+        printl(f"{'=' * 128}", log_path=log_path)
+        encoder, projection_head = prepare_models(configs, log_path=log_path)
+        device = torch.device("cuda")
+        encoder.to(device)
+        projection_head.to(device)
+        printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
+    elif parse_args.mode == 'train' and parse_args.resume_path is not None:
+        raise NotImplementedError
+    elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
+        raise NotImplementedError
+    else:
+        raise NotImplementedError
     """
     Tokenizer, Optimizer, Schedular, Criterion
     """
-    alphabet = encoder.alphabet
-    tokenizer = alphabet.get_batch_converter()  # truncation_seq_length=512?
-    optimizer = torch.optim.AdamW(
-        list(encoder.parameters()) + list(projection_head.parameters()),
-        lr=float(configs.max_learning_rate),
-        betas=(float(configs.optimizer_beta1), float(configs.optimizer_beta2)),
-        weight_decay=float(configs.optimizer_weight_decay),
-        eps=float(configs.optimizer_eps)
-    )
-    schedular = CosineAnnealingWarmupRestarts(
-        optimizer,
-        first_cycle_steps=int(configs.schedular_first_cycle_steps),
-        max_lr=float(configs.max_learning_rate),
-        min_lr=float(configs.min_learning_rate),
-        warmup_steps=int(configs.schedular_warmup_epochs),
-        gamma=float(configs.schedular_gamma)
-    )
+    if parse_args.mode == 'train' and parse_args.resume_path is None:
+        alphabet = encoder.alphabet
+        tokenizer = alphabet.get_batch_converter()  # truncation_seq_length=512?
+        optimizer = torch.optim.AdamW(
+            list(encoder.parameters()) + list(projection_head.parameters()),
+            lr=float(configs.max_learning_rate),
+            betas=(float(configs.optimizer_beta1), float(configs.optimizer_beta2)),
+            weight_decay=float(configs.optimizer_weight_decay),
+            eps=float(configs.optimizer_eps)
+        )
+        schedular = CosineAnnealingWarmupRestarts(
+            optimizer,
+            first_cycle_steps=int(configs.schedular_first_cycle_steps),
+            max_lr=float(configs.max_learning_rate),
+            min_lr=float(configs.min_learning_rate),
+            warmup_steps=int(configs.schedular_warmup_epochs),
+            gamma=float(configs.schedular_gamma)
+        )
+    elif parse_args.mode == 'train' and parse_args.resume_path is not None:
+        raise NotImplementedError
+    elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
+        raise NotImplementedError
+    else:
+        raise NotImplementedError
     if configs.contrastive_mode == "Triplet":
         criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
         printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
