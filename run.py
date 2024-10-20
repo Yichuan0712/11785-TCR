@@ -19,6 +19,8 @@ import os
 
 
 def main(parse_args, configs):
+    print(parse_args)
+    exit(0)
     torch.cuda.empty_cache()
     curdir_path, result_path, checkpoint_path, log_path, config_path = prepare_saving_dir(parse_args)
     """
@@ -115,6 +117,7 @@ def main(parse_args, configs):
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
                 dataloaders = get_dataloader(configs, nearest_neighbors=nearest_neighbors)
+        # save model
     elif configs.contrastive_mode == "MultiPosNeg":
         criterion = SupConHardLoss
         printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
@@ -126,6 +129,7 @@ def main(parse_args, configs):
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
                 dataloaders = get_dataloader(configs, nearest_neighbors=nearest_neighbors)
+        # save model
     else:
         raise ValueError("Wrong contrastive mode specified.")
 
