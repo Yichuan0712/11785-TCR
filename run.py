@@ -19,8 +19,6 @@ import os
 
 
 def main(parse_args, configs):
-    print(parse_args)
-    exit(0)
     torch.cuda.empty_cache()
     curdir_path, result_path, checkpoint_path, log_path, config_path = prepare_saving_dir(parse_args)
     """
