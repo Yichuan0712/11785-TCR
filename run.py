@@ -112,6 +112,7 @@ def main(parse_args, configs):
             warmup_steps=int(configs.schedular_warmup_epochs),
             gamma=float(configs.schedular_gamma)
         )
+        printl("Tokenizer, Optimizer, Schedular initialization complete.", log_path=log_path)
     elif parse_args.mode == 'train' and parse_args.resume_path is not None:
         raise NotImplementedError
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
@@ -120,7 +121,7 @@ def main(parse_args, configs):
         raise NotImplementedError
     if configs.contrastive_mode == "Triplet":
         criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
-        printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
+        printl("Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(1, configs.epochs + 1):
@@ -132,7 +133,7 @@ def main(parse_args, configs):
         # save model
     elif configs.contrastive_mode == "MultiPosNeg":
         criterion = SupConHardLoss
-        printl("Tokenizer, Optimizer, Schedular, Criterion initialization complete.", log_path=log_path)
+        printl("Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(1, configs.epochs + 1):
