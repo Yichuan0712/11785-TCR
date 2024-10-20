@@ -81,10 +81,7 @@ class PytdcDatasetTriplet(Dataset):
 
     def __len__(self):
         """
-        Returns the number of unique epitopes in the dataset.
 
-        Returns:
-            int: Length of the number of unique epitopes.
         """
         return len(self.full_list)
 
@@ -212,10 +209,7 @@ class PytdcDatasetMulti(Dataset):
 
     def __len__(self):
         """
-        Returns the number of unique epitopes in the dataset.
 
-        Returns:
-            int: Length of the number of unique epitopes.
         """
         return len(self.full_list)
 
@@ -366,7 +360,6 @@ class PytdcDatasetInfer(Dataset):
 
         for tcr, epitope in zip(self.TCR, self.epitope):
             self.full_list.append((tcr, epitope))
-
 
     def __len__(self):
         return len(self.full_list)
