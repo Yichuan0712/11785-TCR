@@ -332,3 +332,45 @@ def get_dataloader(configs, nearest_neighbors):
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
         raise ValueError("Wrong dataset specified.")
+
+
+class PytdcDatasetInfer(Dataset):
+    def __init__(self, dataframe, configs):
+        self.configs = configs
+
+        if configs.tcr_embedding_source == "BindingSite":
+            TCR = dataframe['tcr'].values
+        elif configs.tcr_embedding_source == "Full":
+            TCR = dataframe['tcr_full'].values
+        else:
+            raise ValueError("Invalid TCR embedding source specified in configs.")
+        epitope = dataframe['epitope_aa'].values
+        label = dataframe['label'].values
+
+        self.TCR = TCR[label == 1]
+        self.epitope = epitope[label == 1]
+
+        self.TCR_epitope = {}
+        self.epitope_TCR = {}
+
+        for tcr, epi in zip(self.TCR, self.epitope):
+            if tcr not in self.TCR_epitope:
+                self.TCR_epitope[tcr] = []
+            self.TCR_epitope[tcr].append(epi)
+
+            if epi not in self.epitope_TCR:
+                self.epitope_TCR[epi] = []
+            self.epitope_TCR[epi].append(tcr)
+
+        self.full_list = []
+
+        for tcr, epitope in zip(self.TCR, self.epitope):
+            self.full_list.append((tcr, epitope))
+
+
+    def __len__(self):
+        return len(self.full_list)
+
+    def __getitem__(self, idx):
+        anchor_TCR, anchor_epitope = self.full_list[idx]
+        return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR}
