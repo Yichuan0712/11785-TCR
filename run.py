@@ -86,7 +86,16 @@ def main(parse_args, configs):
         projection_head.to(device)
         printl("ESM-2 encoder & projection head initialization complete.", log_path=log_path)
     elif parse_args.mode == 'train' and parse_args.resume_path is not None:
-        raise NotImplementedError
+        printl(f"{'=' * 128}", log_path=log_path)
+        encoder, projection_head = prepare_models(configs, log_path=log_path)
+        device = torch.device("cuda")
+        encoder.to(device)
+        projection_head.to(device)
+
+        checkpoint = torch.load(parse_args.resume_path, map_location='cuda:0')
+        encoder.load_state_dict(checkpoint['encoder_state_dict'])
+        projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
+        printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         raise NotImplementedError
     else:
@@ -115,12 +124,9 @@ def main(parse_args, configs):
         )
         printl("Tokenizer, Optimizer, Schedular initialization complete.", log_path=log_path)
     elif parse_args.mode == 'train' and parse_args.resume_path is not None:
-        checkpoint = torch.load(parse_args.resume_path, map_location='cuda:0')
         resume_epoch = checkpoint['epoch']
-        encoder.load_state_dict(checkpoint['encoder_state_dict'])
-        encoder.cuda()
-        projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
-        projection_head.cuda()
+        alphabet = encoder.alphabet
+        tokenizer = alphabet.get_batch_converter()
         optimizer = torch.optim.AdamW(
             list(encoder.parameters()) + list(projection_head.parameters()),
             lr=float(configs.max_learning_rate),
@@ -138,8 +144,6 @@ def main(parse_args, configs):
         )
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        alphabet = encoder.alphabet
-        tokenizer = alphabet.get_batch_converter()
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         raise NotImplementedError
