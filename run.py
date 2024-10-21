@@ -101,7 +101,7 @@ def main(parse_args, configs):
     else:
         raise NotImplementedError
     """
-    Tokenizer, Optimizer, Schedular, Criterion
+    Tokenizer, Optimizer, Scheduler, Criterion
     """
     if parse_args.mode == 'train' and parse_args.resume_path is None:
         resume_epoch = 0
@@ -114,15 +114,15 @@ def main(parse_args, configs):
             weight_decay=float(configs.optimizer_weight_decay),
             eps=float(configs.optimizer_eps)
         )
-        schedular = CosineAnnealingWarmupRestarts(
+        scheduler = CosineAnnealingWarmupRestarts(
             optimizer,
-            first_cycle_steps=int(configs.schedular_first_cycle_steps),
+            first_cycle_steps=int(configs.scheduler_first_cycle_steps),
             max_lr=float(configs.max_learning_rate),
             min_lr=float(configs.min_learning_rate),
-            warmup_steps=int(configs.schedular_warmup_epochs),
-            gamma=float(configs.schedular_gamma)
+            warmup_steps=int(configs.scheduler_warmup_epochs),
+            gamma=float(configs.scheduler_gamma)
         )
-        printl("Tokenizer, Optimizer, Schedular initialization complete.", log_path=log_path)
+        printl("Tokenizer, Optimizer, Scheduler initialization complete.", log_path=log_path)
     elif parse_args.mode == 'train' and parse_args.resume_path is not None:
         resume_epoch = checkpoint['epoch']
         alphabet = encoder.alphabet
@@ -136,15 +136,15 @@ def main(parse_args, configs):
         )
         scheduler = CosineAnnealingWarmupRestarts(
             optimizer,
-            first_cycle_steps=int(configs.schedular_first_cycle_steps),
+            first_cycle_steps=int(configs.scheduler_first_cycle_steps),
             max_lr=float(configs.max_learning_rate),
             min_lr=float(configs.min_learning_rate),
-            warmup_steps=int(configs.schedular_warmup_epochs),
-            gamma=float(configs.schedular_gamma)
+            warmup_steps=int(configs.scheduler_warmup_epochs),
+            gamma=float(configs.scheduler_gamma)
         )
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        printl("Tokenizer, Optimizer, Schedular successfully resumed from checkpoint.", log_path=log_path)
+        printl("Tokenizer, Optimizer, Scheduler successfully resumed from checkpoint.", log_path=log_path)
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         raise NotImplementedError
@@ -157,7 +157,7 @@ def main(parse_args, configs):
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
-            _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
+            _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
@@ -168,7 +168,7 @@ def main(parse_args, configs):
                 'encoder_state_dict': encoder.state_dict(),
                 'projection_head_state_dict': projection_head.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict': schedular.state_dict(),
+                'scheduler_state_dict': scheduler.state_dict(),
             }, os.path.join(checkpoint_path, 'model_triplet.pth'))
 
     elif configs.contrastive_mode == "MultiPosNeg" and parse_args.mode == 'train':
@@ -177,7 +177,7 @@ def main(parse_args, configs):
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
-            _nearest_neighbors = train_multi(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
+            _nearest_neighbors = train_multi(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
@@ -188,7 +188,7 @@ def main(parse_args, configs):
                 'encoder_state_dict': encoder.state_dict(),
                 'projection_head_state_dict': projection_head.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict': schedular.state_dict(),
+                'scheduler_state_dict': scheduler.state_dict(),
             }, os.path.join(checkpoint_path, 'model_supcon.pth'))
     else:
         raise ValueError("Wrong contrastive mode specified.")
@@ -196,7 +196,7 @@ def main(parse_args, configs):
     return
 
 
-def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, configs, log_path):
+def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, scheduler, criterion, configs, log_path):
     device = torch.device("cuda")
 
     encoder.train()
@@ -243,7 +243,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         loss.backward()
         optimizer.step()
 
-        schedular.step()
+        scheduler.step()
 
         total_loss += loss.item()
 
@@ -301,7 +301,7 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
     return None
 
 
-def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, schedular, criterion, configs, log_path):
+def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, scheduler, criterion, configs, log_path):
     device = torch.device("cuda")
 
     encoder.train()
@@ -348,7 +348,7 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
         loss.backward()
         optimizer.step()
 
-        schedular.step()
+        scheduler.step()
 
         total_loss += loss.item()
 
