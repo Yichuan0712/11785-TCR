@@ -144,6 +144,7 @@ def main(parse_args, configs):
         )
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        printl("Tokenizer, Optimizer, Schedular successfully resumed from checkpoint.", log_path=log_path)
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         raise NotImplementedError
