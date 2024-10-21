@@ -153,7 +153,7 @@ def main(parse_args, configs):
 
     if configs.contrastive_mode == "Triplet" and parse_args.mode == 'train':
         criterion = nn.TripletMarginLoss(margin=1, reduction='mean')
-        printl("Criterion initialization complete.", log_path=log_path)
+        printl("Using Triplet Margin Loss.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
@@ -173,7 +173,7 @@ def main(parse_args, configs):
 
     elif configs.contrastive_mode == "MultiPosNeg" and parse_args.mode == 'train':
         criterion = SupConHardLoss
-        printl("Criterion initialization complete.", log_path=log_path)
+        printl("Using SupCon Loss.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
