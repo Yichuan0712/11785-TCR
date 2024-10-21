@@ -122,7 +122,7 @@ def main(parse_args, configs):
             warmup_steps=int(configs.scheduler_warmup_epochs),
             gamma=float(configs.scheduler_gamma)
         )
-        printl("Tokenizer, Optimizer, Scheduler initialization complete.", log_path=log_path)
+        printl("Tokenizer, Optimizer and Scheduler initialization complete.", log_path=log_path)
     elif parse_args.mode == 'train' and parse_args.resume_path is not None:
         resume_epoch = checkpoint['epoch']
         alphabet = encoder.alphabet
@@ -144,7 +144,7 @@ def main(parse_args, configs):
         )
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        printl("Tokenizer, Optimizer, Scheduler successfully resumed from checkpoint.", log_path=log_path)
+        printl("Tokenizer, Optimizer and Scheduler successfully resumed from checkpoint.", log_path=log_path)
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         raise NotImplementedError
