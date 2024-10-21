@@ -95,7 +95,7 @@ def main(parse_args, configs):
     Tokenizer, Optimizer, Schedular, Criterion
     """
     if parse_args.mode == 'train' and parse_args.resume_path is None:
-        resume_epoch = 1
+        resume_epoch = 0
         alphabet = encoder.alphabet
         tokenizer = alphabet.get_batch_converter()  # truncation_seq_length=512?
         optimizer = torch.optim.AdamW(
@@ -151,7 +151,7 @@ def main(parse_args, configs):
         printl("Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
-        for epoch in range(resume_epoch, configs.epochs + 1):
+        for epoch in range(resume_epoch + 1, configs.epochs + 1):
             _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
@@ -171,7 +171,7 @@ def main(parse_args, configs):
         printl("Criterion initialization complete.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
-        for epoch in range(resume_epoch, configs.epochs + 1):
+        for epoch in range(resume_epoch + 1, configs.epochs + 1):
             _nearest_neighbors = train_multi(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, schedular, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
