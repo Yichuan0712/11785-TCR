@@ -7,7 +7,7 @@ batch_mode: "Regular"
               # "ByEpitope"
               # "Regular"
 batch_size: 256  # 192
-epochs: 100
+epochs: 3
 max_learning_rate: 3e-4
 min_learning_rate: 0
 
@@ -32,7 +32,7 @@ negative_sampling_mode: "ExcludePos"
                         # "RandomNeg"
                         # "HardNeg"
 hard_neg_mining_sample_num: 1
-hard_neg_mining_adaptive_rate: 1
+hard_neg_mining_adaptive_rate: 2
 
 encoder_name:  esm2_t6_8M_UR50D
                 # esm2_t36_3B_UR50D,
