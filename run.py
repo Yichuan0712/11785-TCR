@@ -107,7 +107,9 @@ def main(parse_args, configs):
         encoder.load_state_dict(checkpoint['encoder_state_dict'])
         projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
         printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
-
+        alphabet = encoder.alphabet
+        tokenizer = alphabet.get_batch_converter()
+        printl("Tokenizer initialization complete.", log_path=log_path)
         inference_dataloaders = get_dataloader_infer(configs)
         printl("Inference data loading complete.", log_path=log_path)
     else:
@@ -159,7 +161,9 @@ def main(parse_args, configs):
         printl("Tokenizer, Optimizer and Scheduler successfully resumed from checkpoint.", log_path=log_path)
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
-        raise NotImplementedError
+        printl("开始prediction", log_path=log_path)
+        printl(f"{'=' * 128}", log_path=log_path)
+        infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
     else:
         raise NotImplementedError
 
