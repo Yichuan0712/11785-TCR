@@ -161,9 +161,11 @@ def main(parse_args, configs):
         printl("Tokenizer, Optimizer and Scheduler successfully resumed from checkpoint.", log_path=log_path)
 
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
-        printl("开始prediction", log_path=log_path)
+        printl("Start prediction.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
-        infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
+        true_classes, predicted_classes = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
+        print(true_classes)
+        print(predicted_classes)
     else:
         raise NotImplementedError
 
