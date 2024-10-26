@@ -97,7 +97,16 @@ def main(parse_args, configs):
         projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
         printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
-        raise NotImplementedError
+        printl(f"{'=' * 128}", log_path=log_path)
+        encoder, projection_head = prepare_models(configs, log_path=log_path)
+        device = torch.device("cuda")
+        encoder.to(device)
+        projection_head.to(device)
+
+        checkpoint = torch.load(parse_args.resume_path, map_location='cuda:0', weights_only=False)
+        encoder.load_state_dict(checkpoint['encoder_state_dict'])
+        projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
+        printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
     else:
         raise NotImplementedError
     """
