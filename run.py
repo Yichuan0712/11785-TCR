@@ -166,6 +166,10 @@ def main(parse_args, configs):
         true_classes, predicted_classes = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
+        correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
+        accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
+        print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+        return
     else:
         raise NotImplementedError
 
