@@ -384,8 +384,8 @@ def get_dataloader_infer(configs):
         test_dataset = PytdcDatasetInfer(test_data, configs)
         test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True)
 
-        return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader,
-                'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
-                'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
+        return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader}
+                # 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
+                # 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
         raise ValueError("Wrong dataset specified.")
