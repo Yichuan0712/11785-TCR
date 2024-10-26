@@ -367,3 +367,25 @@ class PytdcDatasetInfer(Dataset):
     def __getitem__(self, idx):
         anchor_TCR, anchor_epitope = self.full_list[idx]
         return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR}
+
+
+def get_dataloader_infer(configs):
+    if configs.dataset == "PyTDC":
+        train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
+        valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
+        test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
+
+        train_dataset = PytdcDatasetInfer(train_data, configs)
+        train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
+
+        valid_dataset = PytdcDatasetInfer(valid_data, configs)
+        valid_loader = DataLoader(valid_dataset, batch_size=256, shuffle=True)
+
+        test_dataset = PytdcDatasetInfer(test_data, configs)
+        test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True)
+
+        return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader,
+                'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
+                'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
+    else:
+        raise ValueError("Wrong dataset specified.")

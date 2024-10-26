@@ -11,7 +11,7 @@ import torch.nn as nn
 import numpy as np
 from box import Box
 import sys
-from data import get_dataloader
+from data import get_dataloader, get_dataloader_infer
 from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 from tqdm import tqdm
@@ -107,6 +107,9 @@ def main(parse_args, configs):
         encoder.load_state_dict(checkpoint['encoder_state_dict'])
         projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
         printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
+
+        inference_dataloaders = get_dataloader_infer(configs)
+        printl("Inference data loading complete.", log_path=log_path)
     else:
         raise NotImplementedError
     """
@@ -242,11 +245,11 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
         _, _, negative_tokens = tokenizer(negative_seq_batch)
 
-        anchor_emb = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-        positive_emb = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
-        negative_emb = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
+        anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
+        positive_embs = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
+        negative_embs = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
 
-        loss = criterion(anchor_emb, positive_emb, negative_emb)
+        loss = criterion(anchor_embs, positive_embs, negative_embs)
 
         optimizer.zero_grad()
         loss.backward()
@@ -262,36 +265,38 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
         if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
             for i, epitope in enumerate(epitope_list):
                 if epitope not in epitope_sums:
-                    epitope_sums[epitope] = anchor_emb[i]
+                    epitope_sums[epitope] = anchor_embs[i]
                     epitope_counts[epitope] = 1
                 else:
-                    epitope_sums[epitope] += anchor_emb[i]
+                    epitope_sums[epitope] += anchor_embs[i]
                     epitope_counts[epitope] += 1
-            epitope_data = {
-                epitope: {
-                    "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-                    "count": epitope_counts[epitope]
-                }
-                for epitope in epitope_sums
+
+    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
+        epitope_data = {
+            epitope: {
+                "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
+                "count": epitope_counts[epitope]
             }
+            for epitope in epitope_sums
+        }
 
-            N = int(configs.hard_neg_mining_sample_num)
-            nearest_neighbors = {}
+        N = int(configs.hard_neg_mining_sample_num)
+        nearest_neighbors = {}
 
-            for i, epitope1 in enumerate(epitope_sums.keys()):
-                emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-                distances = []
+        for i, epitope1 in enumerate(epitope_sums.keys()):
+            emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
+            distances = []
 
-                for j, epitope2 in enumerate(epitope_sums.keys()):
-                    if i == j:
-                        continue
-                    emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                    distance = torch.dist(emb1, emb2)
-                    distances.append((epitope2, distance))
+            for j, epitope2 in enumerate(epitope_sums.keys()):
+                if i == j:
+                    continue
+                emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
+                distance = torch.dist(emb1, emb2).item()
+                distances.append((epitope2, distance))
 
-                distances.sort(key=lambda x: x[1])
-                nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-                                               distances[:N]]
+            distances.sort(key=lambda x: x[1])
+            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
+                                           distances[:N]]
 
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
@@ -372,31 +377,33 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
                 else:
                     epitope_sums[epitope] += anchor_positive_negative[i][0]
                     epitope_counts[epitope] += 1
-            epitope_data = {
-                epitope: {
-                    "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-                    "count": epitope_counts[epitope]
-                }
-                for epitope in epitope_sums
+
+    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
+        epitope_data = {
+            epitope: {
+                "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
+                "count": epitope_counts[epitope]
             }
+            for epitope in epitope_sums
+        }
 
-            N = int(configs.hard_neg_mining_sample_num)
-            nearest_neighbors = {}
+        N = int(configs.hard_neg_mining_sample_num)
+        nearest_neighbors = {}
 
-            for i, epitope1 in enumerate(epitope_data.keys()):
-                emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-                distances = []
+        for i, epitope1 in enumerate(epitope_sums.keys()):
+            emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
+            distances = []
 
-                for j, epitope2 in enumerate(epitope_data.keys()):
-                    if i == j:
-                        continue
-                    emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                    distance = torch.dist(emb1, emb2)
-                    distances.append((epitope2, distance))
+            for j, epitope2 in enumerate(epitope_sums.keys()):
+                if i == j:
+                    continue
+                emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
+                distance = torch.dist(emb1, emb2).item()
+                distances.append((epitope2, distance))
 
-                distances.sort(key=lambda x: x[1])
-                nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-                                               distances[:N]]
+            distances.sort(key=lambda x: x[1])
+            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
+                                           distances[:N]]
 
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
@@ -415,8 +422,79 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
     return None
 
 
-def infer_maxsep(encoder, projection_head):
-    return None
+def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_loader, log_path):
+    device = torch.device("cuda")
+    # Set models to evaluation mode for inference
+    encoder.eval()
+    projection_head.eval()
+
+    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Cluster Center Calculation")
+
+    log_dir = os.path.dirname(log_path)
+    log_file_average = os.path.join(log_dir, "epitope_average.pkl")
+
+    epitope_sums = {}
+    epitope_counts = {}
+
+    with torch.no_grad():
+        for batch, data in progress_bar:
+            epitope_list = data['anchor_epitope']
+            anchor_list = data['anchor_TCR']
+
+            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
+            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
+
+            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
+
+            for i, epitope in enumerate(epitope_list):
+                if epitope not in epitope_sums:
+                    epitope_sums[epitope] = anchor_embs[i]
+                    epitope_counts[epitope] = 1
+                else:
+                    epitope_sums[epitope] += anchor_embs[i]
+                    epitope_counts[epitope] += 1
+    epitope_data = {
+        epitope: {
+            "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
+            "count": epitope_counts[epitope]
+        }
+        for epitope in epitope_sums
+    }
+
+    with open(log_file_average, "wb") as f:
+        pickle.dump(epitope_data, f)
+        printl(f"Cluster center calculation completed and saved to {log_file_average}.", log_path=log_path)
+
+    progress_bar2 = tqdm(enumerate(valid_or_test_loader), total=len(valid_or_test_loader), desc="Finding Nearest Cluster Centers")
+    true_classes = []
+    predicted_classes = []
+
+    with torch.no_grad():
+        for batch, data in progress_bar2:
+            epitope_list = data['anchor_epitope']
+            anchor_list = data['anchor_TCR']
+
+            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
+            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
+
+            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
+
+            for i, epitope in enumerate(epitope_list):
+                true_classes.append(epitope)
+                # Find the nearest cluster center
+                min_distance = float('inf')
+                nearest_epitope = None
+                for cluster_epitope, cluster_data in epitope_data.items():
+                    cluster_emb = cluster_data["average_embedding"].to(device)
+                    distance = torch.dist(anchor_embs[i], cluster_emb).item()
+
+                    if distance < min_distance:
+                        min_distance = distance
+                        nearest_epitope = cluster_epitope
+
+                predicted_classes.append(nearest_epitope)
+
+    return true_classes, predicted_classes
 
 
 if __name__ == "__main__":
