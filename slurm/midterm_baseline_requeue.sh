@@ -3,14 +3,14 @@
 #SBATCH -n 1
 #SBATCH --gres gpu:A100:1
 
-#SBATCH --error=error_slack_midterm.log
-#SBATCH --output=output_slack_midterm.log
+#SBATCH --error=error_slack_midterm_requeue.log
+#SBATCH --output=output_slack_midterm_requeue.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name mdtm
+#SBATCH --job-name mdtm_rq
 
-##SBATCH -p requeue
-#SBATCH -p gpu
+#SBATCH -p requeue
+##SBATCH -p gpu
 
 ##SBATCH -p xudong-gpu
 ##SBATCH -A xudong-lab
