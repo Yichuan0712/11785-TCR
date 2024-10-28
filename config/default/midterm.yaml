@@ -1,0 +1,62 @@
+#fix_seed: 42
+description: "ContraTCR Colab Test"
+dataset: "PyTDC"
+tcr_embedding_source: "BindingSite"
+          # "Full"
+batch_mode: "Regular"
+              # "ByEpitope"
+              # "Regular"
+batch_size: 256  # 192
+epochs: 10000
+max_learning_rate: 3e-4
+min_learning_rate: 0
+
+optimizer_beta1: 0.9
+optimizer_beta2: 0.999
+optimizer_weight_decay: 0.0005
+optimizer_eps: 1e-16
+
+scheduler_first_cycle_steps: 100
+scheduler_warmup_epochs: 0
+scheduler_gamma: 1
+
+contrastive_mode: "Triplet"
+                  # "Triplet"
+                  # "MultiPosNeg"
+n_pos: 2
+n_neg: 3
+temp: 0.1
+
+negative_sampling_mode: "ExcludePos"
+                        # "ExcludePos"
+                        # "RandomNeg"
+                        # "HardNeg"
+hard_neg_mining_sample_num: 1
+hard_neg_mining_adaptive_rate: 2
+
+encoder_name:  esm2_t33_650M_UR50D
+                # esm2_t36_3B_UR50D,
+                # esm2_t33_650M_UR50D,
+                # esm2_t30_150M_UR50D,
+                # esm2_t12_35M_UR50D,
+                # esm2_t6_8M_UR50D,
+tune_ESM_table: False
+fine_tuning:
+  enable: True
+  unfix_last_layer: 4
+adapter_h:
+  enable: False
+  num_end_adapter_layers: 12
+  module_type: "MLP1"
+lora:
+  enable: False
+  esm_num_end_lora: -1
+  r: 8
+  alpha: 32
+  dropout: 0.05
+
+
+projection_head_name: "LayerNorm"
+hidden_dim: 512
+out_dim: 128
+drop_out: 0.1
