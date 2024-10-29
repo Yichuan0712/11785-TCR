@@ -173,10 +173,22 @@ def main(parse_args, configs):
         from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
         from sklearn.preprocessing import LabelEncoder, LabelBinarizer
 
-        # 计算准确率
+        # 计算 Accuracy
         correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
         accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
-        print(f"Accuracy: {accuracy:.4f}")
+
+        # 计算 Precision
+        true_positive = sum(
+            1 for true, pred in zip(true_classes, predicted_classes) if true == pred and pred == 'positive_label')
+        predicted_positive = sum(1 for pred in predicted_classes if pred == 'positive_label')
+        precision = true_positive / predicted_positive if predicted_positive > 0 else 0
+
+        # 计算 Recall
+        actual_positive = sum(1 for true in true_classes if true == 'positive_label')
+        recall = true_positive / actual_positive if actual_positive > 0 else 0
+
+        # 计算 F1 Score
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
         lb = LabelBinarizer()
         true_binarized = lb.fit_transform(true_classes)
@@ -205,9 +217,9 @@ def main(parse_args, configs):
                             multi_class="ovr")
 
         # 显示各项指标
-        # print(f"Precision: {precision:.4f}")
-        # print(f"Recall: {recall:.4f}")
-        # print(f"F1 Score: {f1:.4f}")
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1 Score: {f1:.4f}")
         print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
         return
     else:
