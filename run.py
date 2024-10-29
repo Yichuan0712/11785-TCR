@@ -16,6 +16,8 @@ from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 from tqdm import tqdm
 import os
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.preprocessing import LabelEncoder
 
 
 def main(parse_args, configs):
@@ -167,8 +169,6 @@ def main(parse_args, configs):
         print(true_classes)
         print(predicted_classes)
 
-        from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
-        from sklearn.preprocessing import LabelEncoder
         # Instantiate a label encoder
         label_encoder = LabelEncoder()
         all_classes = list(set(true_classes) | set(predicted_classes))
