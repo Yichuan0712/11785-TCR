@@ -166,9 +166,39 @@ def main(parse_args, configs):
         true_classes, predicted_classes = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
-        correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
-        accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
-        print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+        # correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
+        # accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
+        # print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+        from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+        from sklearn.preprocessing import LabelEncoder
+        # Instantiate a label encoder
+        label_encoder = LabelEncoder()
+
+        # Encode string labels to numeric values
+        true_encoded = label_encoder.fit_transform(true_classes)
+        predicted_encoded = label_encoder.transform(predicted_classes)
+
+        # Calculate accuracy
+        correct_predictions = sum(1 for true, pred in zip(true_encoded, predicted_encoded) if true == pred)
+        accuracy = correct_predictions / len(true_encoded) if len(true_encoded) > 0 else 0
+        print(f"Accuracy: {accuracy:.4f}")
+
+        # Calculate precision, recall, and F1 score
+        precision = precision_score(true_encoded, predicted_encoded, average='weighted')
+        recall = recall_score(true_encoded, predicted_encoded, average='weighted')
+        f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
+
+        # Calculate AUC (if multi-class, use 'ovr' mode)
+        try:
+            auc = roc_auc_score(true_encoded, predicted_encoded, multi_class='ovr')
+        except ValueError:
+            auc = None
+
+        # Display metrics
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1 Score: {f1:.4f}")
+        print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
         return
     else:
         raise NotImplementedError
