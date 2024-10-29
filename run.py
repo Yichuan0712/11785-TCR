@@ -504,7 +504,7 @@ def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_l
     #
     #             predicted_classes.append(nearest_epitope)
     prediction_probabilities = []
-
+    import torch.nn.functional as F
     with torch.no_grad():
         for batch, data in progress_bar2:
             epitope_list = data['anchor_epitope']
