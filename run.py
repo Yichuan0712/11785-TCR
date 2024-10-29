@@ -163,12 +163,47 @@ def main(parse_args, configs):
     elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
         printl("Start prediction.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
-        true_classes, predicted_classes = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
+        true_classes, predicted_classes, predicted_scores = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
+        # correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
+        # accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
+        # print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+        from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+        from sklearn.preprocessing import LabelEncoder, LabelBinarizer
+
+        # 计算准确率
         correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
         accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
-        print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+        print(f"Accuracy: {accuracy:.4f}")
+
+        # 使用全集进行 fit
+        label_encoder = LabelEncoder()
+        label_encoder.fit(true_classes + predicted_classes)  # 包含所有可能出现的类别
+
+        # 单独对真实标签和预测标签进行 transform
+        true_encoded = label_encoder.transform(true_classes)
+        predicted_encoded = label_encoder.transform(predicted_classes)
+
+        # 计算精确率、召回率和 F1 分数（加权平均用于多分类情况）
+        precision = precision_score(true_encoded, predicted_encoded, average='weighted')
+        recall = recall_score(true_encoded, predicted_encoded, average='weighted')
+        f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
+
+        # 可选：AUC 计算（需要预测的概率分数）
+        predicted_scores = None  # 如果有实际预测概率，请替换此值
+        if predicted_scores is not None:
+            lb = LabelBinarizer()
+            true_binarized = lb.fit_transform(true_encoded)  # 二值化真实标签以用于 AUC 计算
+            auc = roc_auc_score(true_binarized, predicted_scores, average="macro", multi_class="ovr")
+        else:
+            auc = None  # 如果没有预测概率，AUC 将被设置为 None
+
+        # 显示各项指标
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1 Score: {f1:.4f}")
+        print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
         return
     else:
         raise NotImplementedError
