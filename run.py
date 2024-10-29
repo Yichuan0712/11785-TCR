@@ -530,7 +530,8 @@ def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_l
                 probabilities = F.softmax(inverse_distances, dim=0).cpu().numpy()
 
                 # Get the epitope with the highest probability as prediction
-                nearest_epitope = distances[torch.argmax(probabilities)][0]
+                import numpy as np
+                nearest_epitope = distances[np.argmax(probabilities)][0]
                 predicted_classes.append(nearest_epitope)
                 prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
 
