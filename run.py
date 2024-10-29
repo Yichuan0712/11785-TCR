@@ -200,14 +200,9 @@ def main(parse_args, configs):
             f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
             f1_scores.append(f1)
 
-        macro_precision = sum(precision_scores) / len(precision_scores)
-        macro_recall = sum(recall_scores) / len(recall_scores)
-        macro_f1 = sum(f1_scores) / len(f1_scores)
-
-        print(f"Accuracy: {accuracy:.4f}")
-        print(f"Precision: {macro_precision:.4f}")
-        print(f"Recall: {macro_recall:.4f}")
-        print(f"F1 Score: {macro_f1:.4f}")
+        precision = sum(precision_scores) / len(precision_scores)
+        recall = sum(recall_scores) / len(recall_scores)
+        f1 = sum(f1_scores) / len(f1_scores)
 
         lb = LabelBinarizer()
         true_binarized = lb.fit_transform(true_classes)
