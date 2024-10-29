@@ -16,8 +16,6 @@ from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 from tqdm import tqdm
 import os
-from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
-from sklearn.preprocessing import LabelEncoder
 
 
 def main(parse_args, configs):
@@ -168,35 +166,9 @@ def main(parse_args, configs):
         true_classes, predicted_classes = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
-
-        # Instantiate a label encoder
-        label_encoder = LabelEncoder()
-        all_classes = list(set(true_classes) | set(predicted_classes))
-        # Encode string labels to numeric values
-        true_encoded = label_encoder.fit_transform(all_classes)
-        predicted_encoded = label_encoder.transform(predicted_classes)
-
-        # Calculate accuracy
-        correct_predictions = sum(1 for true, pred in zip(true_encoded, predicted_encoded) if true == pred)
-        accuracy = correct_predictions / len(true_encoded) if len(true_encoded) > 0 else 0
-        print(f"Accuracy: {accuracy:.4f}")
-
-        # Calculate precision, recall, and F1 score
-        precision = precision_score(true_encoded, predicted_encoded, average='weighted')
-        recall = recall_score(true_encoded, predicted_encoded, average='weighted')
-        f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
-
-        # Calculate AUC (if multi-class, use 'ovr' mode)
-        try:
-            auc = roc_auc_score(true_encoded, predicted_encoded, multi_class='ovr')
-        except ValueError:
-            auc = None
-
-        # Display metrics
-        print(f"Precision: {precision:.4f}")
-        print(f"Recall: {recall:.4f}")
-        print(f"F1 Score: {f1:.4f}")
-        print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
+        correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
+        accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
+        print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
         return
     else:
         raise NotImplementedError
@@ -507,6 +479,32 @@ def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_l
     true_classes = []
     predicted_classes = []
 
+    # with torch.no_grad():
+    #     for batch, data in progress_bar2:
+    #         epitope_list = data['anchor_epitope']
+    #         anchor_list = data['anchor_TCR']
+    #
+    #         anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
+    #         _, _, anchor_tokens = tokenizer(anchor_seq_batch)
+    #
+    #         anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
+    #
+    #         for i, epitope in enumerate(epitope_list):
+    #             true_classes.append(epitope)
+    #             # Find the nearest cluster center
+    #             min_distance = float('inf')
+    #             nearest_epitope = None
+    #             for cluster_epitope, cluster_data in epitope_data.items():
+    #                 cluster_emb = cluster_data["average_embedding"].to(device)
+    #                 distance = torch.dist(anchor_embs[i], cluster_emb).item()
+    #
+    #                 if distance < min_distance:
+    #                     min_distance = distance
+    #                     nearest_epitope = cluster_epitope
+    #
+    #             predicted_classes.append(nearest_epitope)
+    prediction_probabilities = []
+
     with torch.no_grad():
         for batch, data in progress_bar2:
             epitope_list = data['anchor_epitope']
@@ -519,20 +517,26 @@ def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_l
 
             for i, epitope in enumerate(epitope_list):
                 true_classes.append(epitope)
-                # Find the nearest cluster center
-                min_distance = float('inf')
-                nearest_epitope = None
+
+                # Calculate distances to all cluster centers and convert to probabilities
+                distances = []
                 for cluster_epitope, cluster_data in epitope_data.items():
                     cluster_emb = cluster_data["average_embedding"].to(device)
                     distance = torch.dist(anchor_embs[i], cluster_emb).item()
+                    distances.append((cluster_epitope, distance))
 
-                    if distance < min_distance:
-                        min_distance = distance
-                        nearest_epitope = cluster_epitope
+                # Convert distances to similarity scores (e.g., inverse distance or cosine similarity)
+                inverse_distances = torch.tensor([1 / (d[1] + 1e-8) for d in distances])  # Avoid division by zero
+                probabilities = F.softmax(inverse_distances, dim=0).cpu().numpy()
 
+                # Get the epitope with the highest probability as prediction
+                nearest_epitope = distances[torch.argmax(probabilities)][0]
                 predicted_classes.append(nearest_epitope)
+                prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
 
-    return true_classes, predicted_classes
+    return true_classes, predicted_classes, prediction_probabilities
+
+    # return true_classes, predicted_classes
 
 
 if __name__ == "__main__":
