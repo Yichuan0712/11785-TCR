@@ -178,15 +178,12 @@ def main(parse_args, configs):
         accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
         print(f"Accuracy: {accuracy:.4f}")
 
-        # 使用全集进行 fit
         label_encoder = LabelEncoder()
         label_encoder.fit(true_classes + predicted_classes)  # 包含所有可能出现的类别
 
-        # 单独对真实标签和预测标签进行 transform
         true_encoded = label_encoder.transform(true_classes)
         predicted_encoded = label_encoder.transform(predicted_classes)
 
-        # 计算精确率、召回率和 F1 分数（加权平均用于多分类情况）
         precision = precision_score(true_encoded, predicted_encoded, average='weighted')
         recall = recall_score(true_encoded, predicted_encoded, average='weighted')
         f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
@@ -198,9 +195,14 @@ def main(parse_args, configs):
         ])
 
         lb = LabelBinarizer()
-        true_binarized = lb.fit_transform(true_encoded)  # 二值化真实标签以用于 AUC 计算
-        auc = roc_auc_score(true_binarized, predicted_scores_array, average="macro", multi_class="ovr")
+        true_binarized = lb.fit_transform(true_encoded)
 
+        num_classes_in_pred = predicted_scores_array.shape[1]
+        if true_binarized.shape[1] < num_classes_in_pred:
+            padding = np.zeros((true_binarized.shape[0], num_classes_in_pred - true_binarized.shape[1]))
+            true_binarized = np.hstack((true_binarized, padding))
+
+        auc = roc_auc_score(true_binarized, predicted_scores_array, average="macro", multi_class="ovr")
 
         # 显示各项指标
         print(f"Precision: {precision:.4f}")
