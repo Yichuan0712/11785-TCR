@@ -166,6 +166,7 @@ def main(parse_args, configs):
         true_classes, predicted_classes, predicted_scores = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
+        print(predicted_scores)
         # correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
         # accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
         # print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
@@ -190,14 +191,16 @@ def main(parse_args, configs):
         recall = recall_score(true_encoded, predicted_encoded, average='weighted')
         f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
 
-        # 可选：AUC 计算（需要预测的概率分数）
-        # predicted_scores = None  # 如果有实际预测概率，请替换此值
-        if predicted_scores is not None:
-            lb = LabelBinarizer()
-            true_binarized = lb.fit_transform(true_encoded)  # 二值化真实标签以用于 AUC 计算
-            auc = roc_auc_score(true_binarized, predicted_scores, average="macro", multi_class="ovr")
-        else:
-            auc = None  # 如果没有预测概率，AUC 将被设置为 None
+        all_classes = list(label_encoder.classes_)  # Ensure ordering of classes is consistent
+        predicted_scores_array = np.array([
+            [score_dict.get(cls, 0.0) for cls in all_classes]
+            for score_dict in predicted_scores  # prediction_probabilities from infer_one function
+        ])
+
+        lb = LabelBinarizer()
+        true_binarized = lb.fit_transform(true_encoded)  # 二值化真实标签以用于 AUC 计算
+        auc = roc_auc_score(true_binarized, predicted_scores_array, average="macro", multi_class="ovr")
+
 
         # 显示各项指标
         print(f"Precision: {precision:.4f}")
