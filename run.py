@@ -166,29 +166,48 @@ def main(parse_args, configs):
         true_classes, predicted_classes, predicted_scores = infer_one(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
         print(true_classes)
         print(predicted_classes)
-        print(predicted_scores)
-        # correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
-        # accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
-        # print(f"Accuracy: {accuracy:.4f}")  # better metrics are needed
+
         from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
         from sklearn.preprocessing import LabelEncoder, LabelBinarizer
 
-        # 计算 Accuracy
         correct_predictions = sum(1 for true, pred in zip(true_classes, predicted_classes) if true == pred)
         accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
 
-        # 计算 Precision
-        true_positive = sum(
-            1 for true, pred in zip(true_classes, predicted_classes) if true == pred and pred == 'positive_label')
-        predicted_positive = sum(1 for pred in predicted_classes if pred == 'positive_label')
-        precision = true_positive / predicted_positive if predicted_positive > 0 else 0
+        # 获取所有唯一类别
+        unique_classes = set(true_classes + predicted_classes)
 
-        # 计算 Recall
-        actual_positive = sum(1 for true in true_classes if true == 'positive_label')
-        recall = true_positive / actual_positive if actual_positive > 0 else 0
+        # 初始化 Precision、Recall 和 F1 Score 列表
+        precision_scores = []
+        recall_scores = []
+        f1_scores = []
 
-        # 计算 F1 Score
-        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        for label in unique_classes:
+            # 计算每个类别的 True Positives、False Positives 和 False Negatives
+            true_positive = sum(
+                1 for true, pred in zip(true_classes, predicted_classes) if true == label and pred == label)
+            predicted_positive = sum(1 for pred in predicted_classes if pred == label)
+            actual_positive = sum(1 for true in true_classes if true == label)
+
+            # 计算 Precision
+            precision = true_positive / predicted_positive if predicted_positive > 0 else 0
+            precision_scores.append(precision)
+
+            # 计算 Recall
+            recall = true_positive / actual_positive if actual_positive > 0 else 0
+            recall_scores.append(recall)
+
+            # 计算 F1 Score
+            f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+            f1_scores.append(f1)
+
+        macro_precision = sum(precision_scores) / len(precision_scores)
+        macro_recall = sum(recall_scores) / len(recall_scores)
+        macro_f1 = sum(f1_scores) / len(f1_scores)
+
+        print(f"Accuracy: {accuracy:.4f}")
+        print(f"Precision: {macro_precision:.4f}")
+        print(f"Recall: {macro_recall:.4f}")
+        print(f"F1 Score: {macro_f1:.4f}")
 
         lb = LabelBinarizer()
         true_binarized = lb.fit_transform(true_classes)
@@ -217,6 +236,7 @@ def main(parse_args, configs):
                             multi_class="ovr")
 
         # 显示各项指标
+        print(f"Accuracy: {accuracy:.4f}")
         print(f"Precision: {precision:.4f}")
         print(f"Recall: {recall:.4f}")
         print(f"F1 Score: {f1:.4f}")
