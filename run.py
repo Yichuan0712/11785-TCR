@@ -191,7 +191,7 @@ def main(parse_args, configs):
         f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
 
         # 可选：AUC 计算（需要预测的概率分数）
-        predicted_scores = None  # 如果有实际预测概率，请替换此值
+        # predicted_scores = None  # 如果有实际预测概率，请替换此值
         if predicted_scores is not None:
             lb = LabelBinarizer()
             true_binarized = lb.fit_transform(true_encoded)  # 二值化真实标签以用于 AUC 计算
