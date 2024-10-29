@@ -178,36 +178,36 @@ def main(parse_args, configs):
         accuracy = correct_predictions / len(true_classes) if len(true_classes) > 0 else 0
         print(f"Accuracy: {accuracy:.4f}")
 
-        label_encoder = LabelEncoder()
-        label_encoder.fit(true_classes + predicted_classes)  # 包含所有可能出现的类别
+        lb = LabelBinarizer()
+        true_binarized = lb.fit_transform(true_classes)
 
-        true_encoded = label_encoder.transform(true_classes)
-        predicted_encoded = label_encoder.transform(predicted_classes)
+        # 提取所有类别
+        all_classes = sorted(set(true_classes + predicted_classes))
 
-        precision = precision_score(true_encoded, predicted_encoded, average='weighted')
-        recall = recall_score(true_encoded, predicted_encoded, average='weighted')
-        f1 = f1_score(true_encoded, predicted_encoded, average='weighted')
-
-        all_classes = list(label_encoder.classes_)  # Ensure ordering of classes is consistent
+        # 将 predicted_scores 转换为二维数组，顺序匹配 all_classes
         predicted_scores_array = np.array([
             [score_dict.get(cls, 0.0) for cls in all_classes]
-            for score_dict in predicted_scores  # prediction_probabilities from infer_one function
+            for score_dict in predicted_scores
         ])
 
-        lb = LabelBinarizer()
-        true_binarized = lb.fit_transform(true_encoded)
+        # 检查 true_binarized 和 predicted_scores_array 的每一列，移除那些没有正负样本的类别
+        valid_indices = []
+        for i in range(true_binarized.shape[1]):
+            if len(np.unique(true_binarized[:, i])) > 1:  # 确保每个类别至少有一个正样本和一个负样本
+                valid_indices.append(i)
 
-        num_classes_in_pred = predicted_scores_array.shape[1]
-        if true_binarized.shape[1] < num_classes_in_pred:
-            padding = np.zeros((true_binarized.shape[0], num_classes_in_pred - true_binarized.shape[1]))
-            true_binarized = np.hstack((true_binarized, padding))
+        # 对 true_binarized 和 predicted_scores_array 进行筛选
+        true_binarized_filtered = true_binarized[:, valid_indices]
+        predicted_scores_array_filtered = predicted_scores_array[:, valid_indices]
 
-        auc = roc_auc_score(true_binarized, predicted_scores_array, average="macro", multi_class="ovr")
+        # 计算 AUC
+        auc = roc_auc_score(true_binarized_filtered, predicted_scores_array_filtered, average="macro",
+                            multi_class="ovr")
 
         # 显示各项指标
-        print(f"Precision: {precision:.4f}")
-        print(f"Recall: {recall:.4f}")
-        print(f"F1 Score: {f1:.4f}")
+        # print(f"Precision: {precision:.4f}")
+        # print(f"Recall: {recall:.4f}")
+        # print(f"F1 Score: {f1:.4f}")
         print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
         return
     else:
