@@ -338,35 +338,27 @@ class PytdcDatasetInfer(Dataset):
             TCR = dataframe['tcr_full'].values
         else:
             raise ValueError("Invalid TCR embedding source specified in configs.")
+
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
 
-        self.TCR = TCR[label == 1]
-        self.epitope = epitope[label == 1]
-
-        self.TCR_epitope = {}
-        self.epitope_TCR = {}
-
-        for tcr, epi in zip(self.TCR, self.epitope):
-            if tcr not in self.TCR_epitope:
-                self.TCR_epitope[tcr] = []
-            self.TCR_epitope[tcr].append(epi)
-
-            if epi not in self.epitope_TCR:
-                self.epitope_TCR[epi] = []
-            self.epitope_TCR[epi].append(tcr)
+        # self.TCR = TCR[label == 1]
+        # self.epitope = epitope[label == 1]
+        self.TCR = TCR
+        self.epitope = epitope
+        self.label = label
 
         self.full_list = []
 
-        for tcr, epitope in zip(self.TCR, self.epitope):
+        for tcr, epitope in zip(self.TCR, self.epitope, self.label):
             self.full_list.append((tcr, epitope))
 
     def __len__(self):
         return len(self.full_list)
 
     def __getitem__(self, idx):
-        anchor_TCR, anchor_epitope = self.full_list[idx]
-        return {'anchor_epitope': anchor_epitope, 'anchor_TCR': anchor_TCR}
+        TCR, epitope, label = self.full_list[idx]
+        return {'epitope': epitope, 'TCR': TCR, 'label': label}
 
 
 def get_dataloader_infer(configs):
@@ -385,7 +377,5 @@ def get_dataloader_infer(configs):
         test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True)
 
         return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader}
-                # 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
-                # 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
         raise ValueError("Wrong dataset specified.")
