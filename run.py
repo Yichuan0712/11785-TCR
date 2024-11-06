@@ -239,7 +239,7 @@ def main(parse_args, configs):
         printl("Start prediction.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
 
-        infer_features(encoder, projection_head, inference_dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
+        infer_features(encoder, projection_head, dataloaders["train_loader"], tokenizer, inference_dataloaders["test_loader"], log_path)
 
         return
     else:
