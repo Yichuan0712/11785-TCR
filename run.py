@@ -17,6 +17,7 @@ import os
 import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.preprocessing import LabelEncoder, LabelBinarizer
+import pandas as pd
 
 
 def main(parse_args, configs):
@@ -634,7 +635,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
     progress_bar2 = tqdm(enumerate(valid_or_test_loader), total=len(valid_or_test_loader), desc="Finding Nearest Cluster Centers")
     true_classes = []
 
-    prediction_probabilities = []
+    feature_list = []
 
     with torch.no_grad():
         for batch, data in progress_bar2:
@@ -650,30 +651,67 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
             for i, epitope in enumerate(epitope_list):
                 true_classes.append(epitope)
 
-                # Calculate distances to all cluster centers and convert to probabilities
+                # 计算x到所有聚类中心的距离
                 distances = []
                 for cluster_epitope, cluster_data in epitope_data.items():
                     cluster_emb = cluster_data["average_embedding"].to(device)
                     distance = torch.dist(anchor_embs[i], cluster_emb).item()
                     distances.append((cluster_epitope, distance))
 
-                """
-                # Convert distances to similarity scores (e.g., inverse distance or cosine similarity)
-                inverse_distances = torch.tensor([1 / (d[1] + 1e-8) for d in distances])  # Avoid division by zero
-                probabilities = F.softmax(inverse_distances, dim=0).cpu().numpy()
+                # 将距离按照从小到大排序
+                distances.sort(key=lambda x: x[1])
 
-                # Get the epitope with the highest probability as prediction
-                nearest_epitope = distances[np.argmax(probabilities)][0]
-                predicted_classes.append(nearest_epitope)
-                prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
-                """
-                print(epitope)
-                print(anchor_list[i])
-                print(anchor_embs[i])
-                print(label_list[i])
-                exit(0)
+                # 提取距离值列表
+                distance_values = [d[1] for d in distances]
 
-    return
+                # 计算统计值
+                min_distance = min(distance_values)
+                max_distance = max(distance_values)
+                avg_distance = sum(distance_values) / len(distance_values)
+                median_distance = np.median(distance_values)
+                std_distance = np.std(distance_values)
+
+                # 计算x到y这个类别的聚类中心的距离
+                target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
+                distance_to_own_cluster = torch.dist(anchor_embs[i], target_cluster_emb).item()
+
+                # 计算排名位置
+                rank_position = [d[0] for d in distances].index(epitope) + 1  # 索引从0开始，故加1
+
+                # 打印信息（可选）
+                print(f"样本 {i}:")
+                print(f"x: {anchor_list[i]}")  # x
+                print(f"y: {epitope}")  # y
+                print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
+                print(f"label: {label_list[i]}")  # label
+                print(f"距离所属聚类中心的距离: {distance_to_own_cluster}")
+                print(f"最小距离: {min_distance}")
+                print(f"最大距离: {max_distance}")
+                print(f"平均距离: {avg_distance}")
+                print(f"中位数距离: {median_distance}")
+                print(f"距离标准差: {std_distance}")
+                print(f"排名位置: {rank_position}")
+
+                # 将特征保存到字典中
+                features = {
+                    'x': anchor_list[i],
+                    'y': epitope,
+                    'label': label_list[i],
+                    'distance_to_own_cluster': distance_to_own_cluster,
+                    'min_distance': min_distance,
+                    'max_distance': max_distance,
+                    'avg_distance': avg_distance,
+                    'median_distance': median_distance,
+                    'std_distance': std_distance,
+                    'rank_position': rank_position
+                }
+
+                # 添加到特征列表
+                feature_list.append(features)
+
+    feature_df = pd.DataFrame(feature_list)
+    feature_df.to_csv('feature_data.csv', index=False)
+    print("特征数据已保存到 feature_data.csv")
 
 
 if __name__ == "__main__":
