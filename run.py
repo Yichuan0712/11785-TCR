@@ -680,9 +680,9 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
 
                 # 打印信息（可选）
                 print(f"样本 {i}:")
-                print(f"x: {anchor_list[i]}")  # x
-                print(f"y: {epitope}")  # y
-                print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
+                # print(f"x: {anchor_list[i]}")  # x
+                # print(f"y: {epitope}")  # y
+                # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
                 print(f"label: {label_list[i]}")  # label
                 print(f"距离所属聚类中心的距离: {distance_to_own_cluster}")
                 print(f"最小距离: {min_distance}")
