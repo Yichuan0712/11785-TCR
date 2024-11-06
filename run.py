@@ -633,7 +633,6 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
 
     progress_bar2 = tqdm(enumerate(valid_or_test_loader), total=len(valid_or_test_loader), desc="Finding Nearest Cluster Centers")
     true_classes = []
-    predicted_classes = []
 
     prediction_probabilities = []
 
@@ -669,6 +668,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
                 """
                 print(epitope)
+                print(anchor_list[i])
                 print(anchor_embs[i])
                 print(label_list[i])
                 exit(0)
