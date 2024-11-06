@@ -555,8 +555,8 @@ def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_l
 
     with torch.no_grad():
         for batch, data in progress_bar2:
-            epitope_list = data['anchor_epitope']
-            anchor_list = data['anchor_TCR']
+            epitope_list = data['epitope']
+            anchor_list = data['TCR']
 
             anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
             _, _, anchor_tokens = tokenizer(anchor_seq_batch)
