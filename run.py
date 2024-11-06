@@ -670,9 +670,9 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 predicted_classes.append(nearest_epitope)
                 prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
                 """
-                print(epitope)
+                # print(epitope)
                 print(anchor_embs[i])
-                print(label_list[i])
+                # print(label_list[i])
                 exit(0)
 
     return
