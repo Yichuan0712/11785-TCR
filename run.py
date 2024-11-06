@@ -652,17 +652,17 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 true_classes.append(epitope)
 
                 # 计算x到所有聚类中心的距离
-                distances = []
+                cosine_similarities = []
                 for cluster_epitope, cluster_data in epitope_data.items():
                     cluster_emb = cluster_data["average_embedding"].to(device)
-                    distance = torch.dist(anchor_embs[i], cluster_emb).item()
-                    distances.append((cluster_epitope, distance))
+                    cos_sim = F.cosine_similarity(anchor_embs[i].unsqueeze(0), cluster_emb.unsqueeze(0)).item()
+                    cosine_similarities.append((cluster_epitope, cos_sim))
 
                 # 将距离按照从小到大排序
-                distances.sort(key=lambda x: x[1])
+                cosine_similarities.sort(key=lambda x: x[1])
 
                 # 提取距离值列表
-                distance_values = [d[1] for d in distances]
+                distance_values = [d[1] for d in cosine_similarities]
 
                 # 计算统计值
                 min_distance = min(distance_values)
@@ -676,7 +676,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 distance_to_own_cluster = torch.dist(anchor_embs[i], target_cluster_emb).item()
 
                 # 计算排名位置
-                rank_position = [d[0] for d in distances].index(epitope) + 1  # 索引从0开始，故加1
+                rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
 
                 # 打印信息（可选）
                 print(f"样本 {i}:")
