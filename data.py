@@ -350,8 +350,8 @@ class PytdcDatasetInfer(Dataset):
 
         self.full_list = []
 
-        for tcr, epitope in zip(self.TCR, self.epitope, self.label):
-            self.full_list.append((tcr, epitope))
+        for tcr, epitope, label in zip(self.TCR, self.epitope, self.label):
+            self.full_list.append((tcr, epitope, label))
 
     def __len__(self):
         return len(self.full_list)
