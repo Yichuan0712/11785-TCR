@@ -677,12 +677,12 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 # print(f"y: {epitope}")  # y
                 # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
                 print(f"label: {label_list[i]}")  # label
-                print(f"距离所属聚类中心的距离: {similarity_to_own_cluster}")
-                print(f"最小距离: {min_similarity}")
-                print(f"最大距离: {max_similarity}")
-                print(f"平均距离: {avg_similarity}")
-                print(f"中位数距离: {median_similarity}")
-                print(f"距离标准差: {std_similarity}")
+                print(f"相似度: {similarity_to_own_cluster}")
+                print(f"最小: {min_similarity}")
+                print(f"最大: {max_similarity}")
+                print(f"平均: {avg_similarity}")
+                print(f"中位数: {median_similarity}")
+                print(f"标准差: {std_similarity}")
                 print(f"排名位置: {rank_position}")
                 print()
 
