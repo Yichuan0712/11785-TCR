@@ -23,4 +23,4 @@ source activate /home/yz3qt/data/miniconda/envs/splm
 export TORCH_HOME=/home/yz3qt/data/torch_cache/
 export HF_HOME=/home/yz3qt/data/transformers_cache/
 
-python ./run.py --config_path ./config/default/midterm400_1.yaml || true
+python ./run.py --config_path ./config/default/midterm400_clean_full.yaml || true
