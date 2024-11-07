@@ -673,7 +673,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
 
                 # 计算x到y这个类别的聚类中心的距离
                 target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
-                similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i], target_cluster_emb).item()
+                similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
 
                 # 计算排名位置
                 rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
