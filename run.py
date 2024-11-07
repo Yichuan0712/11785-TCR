@@ -651,63 +651,54 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
             for i, epitope in enumerate(epitope_list):
                 true_classes.append(epitope)
 
-                # 计算x到所有聚类中心的距离
                 cosine_similarities = []
                 for cluster_epitope, cluster_data in epitope_data.items():
                     cluster_emb = cluster_data["average_embedding"].to(device)
                     cos_sim = F.cosine_similarity(anchor_embs[i].unsqueeze(0), cluster_emb.unsqueeze(0)).item()
                     cosine_similarities.append((cluster_epitope, cos_sim))
 
-                # 将距离按照从小到大排序
                 cosine_similarities.sort(key=lambda x: x[1])
 
-                # 提取距离值列表
-                distance_values = [d[1] for d in cosine_similarities]
+                similarity_values = [d[1] for d in cosine_similarities]
 
-                # 计算统计值
-                min_distance = min(distance_values)
-                max_distance = max(distance_values)
-                avg_distance = sum(distance_values) / len(distance_values)
-                median_distance = np.median(distance_values)
-                std_distance = np.std(distance_values)
+                min_similarity = min(similarity_values)
+                max_similarity = max(similarity_values)
+                avg_similarity = sum(similarity_values) / len(similarity_values)
+                median_similarity = np.median(similarity_values)
+                std_similarity = np.std(similarity_values)
 
-                # 计算x到y这个类别的聚类中心的距离
                 target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
                 similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
 
-                # 计算排名位置
                 rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
 
-                # 打印信息（可选）
                 print(f"样本 {i}:")
                 # print(f"x: {anchor_list[i]}")  # x
                 # print(f"y: {epitope}")  # y
                 # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
                 print(f"label: {label_list[i]}")  # label
                 print(f"距离所属聚类中心的距离: {similarity_to_own_cluster}")
-                print(f"最小距离: {min_distance}")
-                print(f"最大距离: {max_distance}")
-                print(f"平均距离: {avg_distance}")
-                print(f"中位数距离: {median_distance}")
-                print(f"距离标准差: {std_distance}")
+                print(f"最小距离: {min_similarity}")
+                print(f"最大距离: {max_similarity}")
+                print(f"平均距离: {avg_similarity}")
+                print(f"中位数距离: {median_similarity}")
+                print(f"距离标准差: {std_similarity}")
                 print(f"排名位置: {rank_position}")
                 print()
 
-                # 将特征保存到字典中
                 features = {
                     'x': anchor_list[i],
                     'y': epitope,
                     'label': label_list[i],
-                    'distance_to_own_cluster': similarity_to_own_cluster,
-                    'min_distance': min_distance,
-                    'max_distance': max_distance,
-                    'avg_distance': avg_distance,
-                    'median_distance': median_distance,
-                    'std_distance': std_distance,
+                    'similarity_to_own_cluster': similarity_to_own_cluster,
+                    'max_similarity': max_similarity,
+                    'min_similarity': min_similarity,
+                    'avg_similarity': avg_similarity,
+                    'median_similarity': median_similarity,
+                    'std_similarity': std_similarity,
                     'rank_position': rank_position
                 }
 
-                # 添加到特征列表
                 feature_list.append(features)
 
     feature_df = pd.DataFrame(feature_list)
