@@ -695,7 +695,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
     feature_df = pd.DataFrame(feature_list)
     csv_path = os.path.join(log_dir, 'feature_data.csv')
     feature_df.to_csv(csv_path, index=False)
-    printl(f"Feature are saved to {csv_path}.", log_path=log_path)
+    printl(f"Features are saved to {csv_path}.", log_path=log_path)
 
 
 if __name__ == "__main__":
