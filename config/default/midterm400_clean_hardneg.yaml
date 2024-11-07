@@ -31,7 +31,7 @@ negative_sampling_mode: "HardNeg"
                         # "ExcludePos"
                         # "RandomNeg"
                         # "HardNeg"
-hard_neg_mining_sample_num: 1
+hard_neg_mining_sample_num: 10
 hard_neg_mining_adaptive_rate: 10
 
 encoder_name:  esm2_t33_650M_UR50D
