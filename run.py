@@ -674,24 +674,10 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
 
                 rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
-                # print(f"样本 {i}:")
-                # # print(f"x: {anchor_list[i]}")  # x
-                # # print(f"y: {epitope}")  # y
-                # # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
-                # print(f"label: {label_list[i]}")  # label
-                # print(f"相似度: {similarity_to_own_cluster}")
-                # print(f"最小: {min_similarity}")
-                # print(f"最大: {max_similarity}")
-                # print(f"平均: {avg_similarity}")
-                # print(f"中位数: {median_similarity}")
-                # print(f"标准差: {std_similarity}")
-                # print(f"排名位置: {rank_position}")
-                # print()
 
                 features = {
                     'x': anchor_list[i],
                     'y': epitope,
-                    'label': label_list[i],
                     'similarity_to_own_cluster': similarity_to_own_cluster,
                     'max_similarity': max_similarity,
                     'min_similarity': min_similarity,
@@ -700,14 +686,16 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                     'std_similarity': std_similarity,
                     'skewness_similarity': skewness_similarity,
                     'kurtosis_similarity': kurtosis_similarity,
-                    'rank_position': rank_position
+                    'rank_position': rank_position,
+                    'label': label_list[i],
                 }
 
                 feature_list.append(features)
 
     feature_df = pd.DataFrame(feature_list)
-    feature_df.to_csv('feature_data.csv', index=False)
-    print("特征数据已保存到 feature_data.csv")
+    csv_path = os.path.join(log_dir, 'feature_data.csv')
+    feature_df.to_csv(csv_path, index=False)
+    printl(f"Feature are saved to {csv_path}.", log_path=log_path)
 
 
 if __name__ == "__main__":

@@ -368,13 +368,13 @@ def get_dataloader_infer(configs):
         test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
 
         train_dataset = PytdcDatasetInfer(train_data, configs)
-        train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=256, shuffle=False)
 
         valid_dataset = PytdcDatasetInfer(valid_data, configs)
-        valid_loader = DataLoader(valid_dataset, batch_size=256, shuffle=True)
+        valid_loader = DataLoader(valid_dataset, batch_size=256, shuffle=False)
 
         test_dataset = PytdcDatasetInfer(test_data, configs)
-        test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
         return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader}
     else:
