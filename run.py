@@ -18,6 +18,7 @@ import torch.nn.functional as F
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.preprocessing import LabelEncoder, LabelBinarizer
 import pandas as pd
+from scipy.stats import skew, kurtosis
 
 
 def main(parse_args, configs):
@@ -666,25 +667,26 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 avg_similarity = sum(similarity_values) / len(similarity_values)
                 median_similarity = np.median(similarity_values)
                 std_similarity = np.std(similarity_values)
+                similarity_skewness = skew(similarity_values)
+                similarity_kurtosis = kurtosis(similarity_values, fisher=True)
 
                 target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
                 similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
 
                 rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
-
-                print(f"样本 {i}:")
-                # print(f"x: {anchor_list[i]}")  # x
-                # print(f"y: {epitope}")  # y
-                # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
-                print(f"label: {label_list[i]}")  # label
-                print(f"相似度: {similarity_to_own_cluster}")
-                print(f"最小: {min_similarity}")
-                print(f"最大: {max_similarity}")
-                print(f"平均: {avg_similarity}")
-                print(f"中位数: {median_similarity}")
-                print(f"标准差: {std_similarity}")
-                print(f"排名位置: {rank_position}")
-                print()
+                # print(f"样本 {i}:")
+                # # print(f"x: {anchor_list[i]}")  # x
+                # # print(f"y: {epitope}")  # y
+                # # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
+                # print(f"label: {label_list[i]}")  # label
+                # print(f"相似度: {similarity_to_own_cluster}")
+                # print(f"最小: {min_similarity}")
+                # print(f"最大: {max_similarity}")
+                # print(f"平均: {avg_similarity}")
+                # print(f"中位数: {median_similarity}")
+                # print(f"标准差: {std_similarity}")
+                # print(f"排名位置: {rank_position}")
+                # print()
 
                 features = {
                     'x': anchor_list[i],
