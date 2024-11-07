@@ -673,7 +673,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
 
                 # 计算x到y这个类别的聚类中心的距离
                 target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
-                distance_to_own_cluster = torch.dist(anchor_embs[i], target_cluster_emb).item()
+                similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i], target_cluster_emb).item()
 
                 # 计算排名位置
                 rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
@@ -684,20 +684,21 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 # print(f"y: {epitope}")  # y
                 # print(f"x的embedding: {anchor_embs[i]}")  # x的embedding
                 print(f"label: {label_list[i]}")  # label
-                print(f"距离所属聚类中心的距离: {distance_to_own_cluster}")
+                print(f"距离所属聚类中心的距离: {similarity_to_own_cluster}")
                 print(f"最小距离: {min_distance}")
                 print(f"最大距离: {max_distance}")
                 print(f"平均距离: {avg_distance}")
                 print(f"中位数距离: {median_distance}")
                 print(f"距离标准差: {std_distance}")
                 print(f"排名位置: {rank_position}")
+                print()
 
                 # 将特征保存到字典中
                 features = {
                     'x': anchor_list[i],
                     'y': epitope,
                     'label': label_list[i],
-                    'distance_to_own_cluster': distance_to_own_cluster,
+                    'distance_to_own_cluster': similarity_to_own_cluster,
                     'min_distance': min_distance,
                     'max_distance': max_distance,
                     'avg_distance': avg_distance,
