@@ -369,18 +369,23 @@ def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, opti
 
         for i, epitope1 in enumerate(epitope_sums.keys()):
             emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-            distances = []
+            # distances = []
+            similarities = []
 
             for j, epitope2 in enumerate(epitope_sums.keys()):
                 if i == j:
                     continue
                 emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                distance = torch.dist(emb1, emb2).item()
-                distances.append((epitope2, distance))
+                # distance = torch.dist(emb1, emb2).item()
+                # distances.append((epitope2, distance))
+                similarity = F.cosine_similarity(emb1.unsqueeze(0), emb2.unsqueeze(0)).item()
+                similarities.append((epitope2, similarity))
 
-            distances.sort(key=lambda x: x[1])
-            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-                                           distances[:N]]
+            # distances.sort(key=lambda x: x[1])
+            # nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
+            #                                distances[:N]]
+            similarities.sort(key=lambda x: x[1], reverse=True)
+            nearest_neighbors[epitope1] = [{"epitope": epitope, "similarity": sim} for epitope, sim in similarities[:N]]
 
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
@@ -476,19 +481,23 @@ def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimi
 
         for i, epitope1 in enumerate(epitope_sums.keys()):
             emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-            distances = []
+            # distances = []
+            similarities = []
 
             for j, epitope2 in enumerate(epitope_sums.keys()):
                 if i == j:
                     continue
                 emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                distance = torch.dist(emb1, emb2).item()
-                distances.append((epitope2, distance))
+                # distance = torch.dist(emb1, emb2).item()
+                # distances.append((epitope2, distance))
+                similarity = F.cosine_similarity(emb1.unsqueeze(0), emb2.unsqueeze(0)).item()
+                similarities.append((epitope2, similarity))
 
-            distances.sort(key=lambda x: x[1])
-            nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-                                           distances[:N]]
-
+            # distances.sort(key=lambda x: x[1])
+            # nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
+            #                                distances[:N]]
+            similarities.sort(key=lambda x: x[1], reverse=True)
+            nearest_neighbors[epitope1] = [{"epitope": epitope, "similarity": sim} for epitope, sim in similarities[:N]]
     avg_loss = total_loss / len(train_loader)
     printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
 
