@@ -687,7 +687,7 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                     'skewness_similarity': skewness_similarity,
                     'kurtosis_similarity': kurtosis_similarity,
                     'rank_position': rank_position,
-                    'label': label_list[i],
+                    'label': int(label_list[i]),
                 }
 
                 feature_list.append(features)
