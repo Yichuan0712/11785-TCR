@@ -667,8 +667,8 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                 avg_similarity = sum(similarity_values) / len(similarity_values)
                 median_similarity = np.median(similarity_values)
                 std_similarity = np.std(similarity_values)
-                similarity_skewness = skew(similarity_values)
-                similarity_kurtosis = kurtosis(similarity_values, fisher=True)
+                skewness_similarity = skew(similarity_values)
+                kurtosis_similarity = kurtosis(similarity_values, fisher=True)
 
                 target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
                 similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
@@ -698,6 +698,8 @@ def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_t
                     'avg_similarity': avg_similarity,
                     'median_similarity': median_similarity,
                     'std_similarity': std_similarity,
+                    'skewness_similarity': skewness_similarity,
+                    'kurtosis_similarity': kurtosis_similarity,
                     'rank_position': rank_position
                 }
 
