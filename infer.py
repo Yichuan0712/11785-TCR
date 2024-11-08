@@ -27,8 +27,8 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
         for batch, data in progress_bar:
             print(len(data))
             print(data)
-            epitope_list = data['anchor_epitope']
-            anchor_list = data['anchor_TCR']
+            epitope_list = data['epitope']
+            anchor_list = data['TCR']
 
             anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
             _, _, anchor_tokens = tokenizer(anchor_seq_batch)

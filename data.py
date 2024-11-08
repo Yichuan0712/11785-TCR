@@ -329,7 +329,7 @@ def get_dataloader(configs, nearest_neighbors):
 
 
 class PytdcDatasetInfer(Dataset):
-    def __init__(self, dataframe, configs):
+    def __init__(self, dataframe, configs, is_train=False):
         self.configs = configs
 
         if configs.tcr_embedding_source == "BindingSite":
@@ -342,8 +342,10 @@ class PytdcDatasetInfer(Dataset):
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
 
-        # self.TCR = TCR[label == 1]
-        # self.epitope = epitope[label == 1]
+        if is_train:
+            TCR = TCR[label == 1]
+            epitope = epitope[label == 1]
+            label = label[label == 1]
         self.TCR = TCR
         self.epitope = epitope
         self.label = label
@@ -363,12 +365,12 @@ class PytdcDatasetInfer(Dataset):
 
 def get_dataloader_infer(configs):
     if configs.dataset == "PyTDC":
-        # train_data = pd.read_csv(f'./dataset/pytdc_new/train1_PyTDC.csv')
+        train_data = pd.read_csv(f'./dataset/pytdc_new/train1_PyTDC.csv')
         valid_data = pd.read_csv(f'./dataset/pytdc_new/train2_PyTDC.csv')
         test_data = pd.read_csv(f'./dataset/pytdc_new/test_PyTDC.csv')
 
-        # train_dataset = PytdcDatasetInfer(train_data, configs)
-        # train_loader = DataLoader(train_dataset, batch_size=256, shuffle=False)
+        train_dataset = PytdcDatasetInfer(train_data, configs, is_train=True)
+        train_loader = DataLoader(train_dataset, batch_size=256, shuffle=False)
 
         valid_dataset = PytdcDatasetInfer(valid_data, configs)
         valid_loader = DataLoader(valid_dataset, batch_size=256, shuffle=False)
@@ -376,6 +378,6 @@ def get_dataloader_infer(configs):
         test_dataset = PytdcDatasetInfer(test_data, configs)
         test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
-        return {'train1_loader': None, 'train2_loader': valid_loader, 'test_loader': test_loader}
+        return {'train1_loader': train_loader, 'train2_loader': valid_loader, 'test_loader': test_loader}
     else:
         raise ValueError("Wrong dataset specified.")
