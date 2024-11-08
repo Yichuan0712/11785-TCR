@@ -363,7 +363,7 @@ class PytdcDatasetInfer(Dataset):
         return {'epitope': epitope, 'TCR': TCR, 'label': label}
 
 
-def get_dataloader_infer(configs):
+def get_dataloader_extraction(configs):
     if configs.dataset == "PyTDC":
         train_data = pd.read_csv(f'./dataset/pytdc_new/train1_PyTDC.csv')
         valid_data = pd.read_csv(f'./dataset/pytdc_new/train2_PyTDC.csv')

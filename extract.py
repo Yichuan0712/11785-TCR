@@ -9,7 +9,7 @@ import pandas as pd
 from scipy.stats import skew, kurtosis
 
 
-def infer_features(encoder, projection_head, train1_loader, train2_loader, test_loader, tokenizer, log_path):
+def extract_features(encoder, projection_head, train1_loader, train2_loader, test_loader, tokenizer, log_path):
     device = torch.device("cuda")
 
     encoder.eval()

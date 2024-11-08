@@ -9,7 +9,7 @@ import torch.nn as nn
 import numpy as np
 from box import Box
 import sys
-from data import get_dataloader, get_dataloader_infer
+from data import get_dataloader, get_dataloader_extraction
 from model import prepare_models
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
 from tqdm import tqdm
@@ -20,7 +20,7 @@ from sklearn.preprocessing import LabelEncoder, LabelBinarizer
 import pandas as pd
 from scipy.stats import skew, kurtosis
 from train import train_triplet, train_multi
-from infer import infer_features
+from extract import extract_features
 
 
 def main(parse_args, configs):
@@ -121,8 +121,8 @@ def main(parse_args, configs):
         alphabet = encoder.alphabet
         tokenizer = alphabet.get_batch_converter()
         printl("Tokenizer initialization complete.", log_path=log_path)
-        inference_dataloaders = get_dataloader_infer(configs)
-        printl("Inference data loading complete.", log_path=log_path)
+        extraction_dataloaders = get_dataloader_extraction(configs)
+        printl("Extraction data loading complete.", log_path=log_path)
     else:
         raise NotImplementedError
     """
@@ -171,11 +171,11 @@ def main(parse_args, configs):
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         printl("Tokenizer, Optimizer and Scheduler successfully resumed from checkpoint.", log_path=log_path)
 
-    elif parse_args.mode == 'infer' and parse_args.resume_path is not None:
-        printl("Start inference.", log_path=log_path)
+    elif parse_args.mode == 'extract' and parse_args.resume_path is not None:
+        printl("Start extraction.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
 
-        infer_features(encoder, projection_head, inference_dataloaders["train1_loader"], inference_dataloaders["train2_loader"], inference_dataloaders["test_loader"], tokenizer, log_path)
+        extract_features(encoder, projection_head, extraction_dataloaders["train1_loader"], extraction_dataloaders["train2_loader"], extraction_dataloaders["test_loader"], tokenizer, log_path)
 
         return
     else:
@@ -234,14 +234,14 @@ if __name__ == "__main__":
                                               "parameters and settings for the operation.",
                         default='./config/default/config.yaml')
     parser.add_argument("--mode", help="Operation mode of the script. Use 'train' for training the model, "
-                                       "'infer' for feature generation using an existing model, and "
+                                       "'extract' for feature generation using an existing model, and "
                                        "'predict' for binding specificity prediction. Default mode is "
                                        "'train'.", default='train')
     parser.add_argument("--result_path", default='./result/default/',
                         help="Path where the results will be stored. If not set, results are saved to "
                              "'./result/default/'. This can include prediction outputs or saved models.")
     parser.add_argument("--resume_path", default=None,
-                        help="Path to a previously saved model checkpoint. If specified, training or inference will "
+                        help="Path to a previously saved model checkpoint. If specified, training or extraction will "
                              "resume from this checkpoint. By default, this is None, meaning training starts from "
                              "scratch.")
     parser.add_argument("--feature_path", default=None,
