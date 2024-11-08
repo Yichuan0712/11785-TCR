@@ -298,7 +298,7 @@ def preserve_structure_collate_fn(batch):
 
 def get_dataloader(configs, nearest_neighbors):
     if configs.dataset == "PyTDC":
-        train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
+        train_data = pd.read_csv(f'./dataset/pytdc_new/train1_PyTDC.csv')
         # valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
         if configs.contrastive_mode == "Triplet":
             train_dataset = PytdcDatasetTriplet(train_data, configs, nearest_neighbors)
@@ -321,7 +321,7 @@ def get_dataloader(configs, nearest_neighbors):
         elif configs.contrastive_mode == "MultiPosNeg":
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=preserve_structure_collate_fn)  # , drop_last=True)
             # valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=preserve_structure_collate_fn)
-        return {'train_loader': train_loader, 'valid_loader': None,  # valid_loader,
+        return {'train1_loader': train_loader, 'train2_loader': None,  # valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
                 'epitope_TCR_neg': train_dataset.epitope_TCR_neg, 'TCR_epitope_neg': train_dataset.TCR_epitope_neg}
     else:
@@ -363,9 +363,9 @@ class PytdcDatasetInfer(Dataset):
 
 def get_dataloader_infer(configs):
     if configs.dataset == "PyTDC":
-        train_data = pd.read_csv(f'./dataset/pytdc/train_PyTDC.csv')
-        valid_data = pd.read_csv(f'./dataset/pytdc/valid_PyTDC.csv')
-        test_data = pd.read_csv(f'./dataset/pytdc/test_PyTDC.csv')
+        train_data = pd.read_csv(f'./dataset/pytdc_new/train1_PyTDC.csv')
+        valid_data = pd.read_csv(f'./dataset/pytdc_new/train2_PyTDC.csv')
+        test_data = pd.read_csv(f'./dataset/pytdc_new/test_PyTDC.csv')
 
         train_dataset = PytdcDatasetInfer(train_data, configs)
         train_loader = DataLoader(train_dataset, batch_size=256, shuffle=False)
@@ -376,6 +376,6 @@ def get_dataloader_infer(configs):
         test_dataset = PytdcDatasetInfer(test_data, configs)
         test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
-        return {'train_loader': train_loader, 'valid_loader': valid_loader, 'test_loader': test_loader}
+        return {'train1_loader': train_loader, 'train2_loader': valid_loader, 'test_loader': test_loader}
     else:
         raise ValueError("Wrong dataset specified.")

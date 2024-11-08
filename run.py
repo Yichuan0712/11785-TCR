@@ -19,6 +19,8 @@ from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_sco
 from sklearn.preprocessing import LabelEncoder, LabelBinarizer
 import pandas as pd
 from scipy.stats import skew, kurtosis
+from train import train_triplet, train_multi
+from infer import infer_features
 
 
 def main(parse_args, configs):
@@ -74,7 +76,7 @@ def main(parse_args, configs):
     """
     printl(f"{'=' * 128}", log_path=log_path)
     dataloaders = get_dataloader(configs, nearest_neighbors=None)
-    printl(f'Number of Steps for Training Data: {len(dataloaders["train_loader"])}', log_path=log_path)
+    printl(f'Number of Steps for Training Data: {len(dataloaders["train1_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Validation Data: {len(dataloaders["valid_loader"])}', log_path=log_path)
     # printl(f'Number of Steps for Test Data: {len(dataloaders_dict["test"])}', log_path=log_path)
     printl("Data loading complete.", log_path=log_path)
@@ -99,7 +101,7 @@ def main(parse_args, configs):
         encoder.load_state_dict(checkpoint['encoder_state_dict'])
         projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
         printl("ESM-2 encoder and projection head successfully resumed from checkpoint.", log_path=log_path)
-    elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
+    elif parse_args.mode == 'infer' and parse_args.resume_path is not None:
         printl(f"{'=' * 128}", log_path=log_path)
         encoder, projection_head = prepare_models(configs, log_path=log_path)
         device = torch.device("cuda")
@@ -237,11 +239,11 @@ def main(parse_args, configs):
     #     print(f"F1 Score: {f1:.4f}")
     #     print(f"AUC: {auc:.4f}" if auc is not None else "AUC: Not applicable")
     #     return
-    elif parse_args.mode == 'predict' and parse_args.resume_path is not None:
-        printl("Start prediction.", log_path=log_path)
+    elif parse_args.mode == 'infer' and parse_args.resume_path is not None:
+        printl("Start inference.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
 
-        infer_features(encoder, projection_head, dataloaders["train_loader"], tokenizer, inference_dataloaders["valid_loader"], log_path)
+        infer_features(encoder, projection_head, dataloaders["train1_loader"], tokenizer, inference_dataloaders["train2_loader"], log_path)
 
         return
     else:
@@ -253,7 +255,7 @@ def main(parse_args, configs):
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
-            _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
+            _nearest_neighbors = train_triplet(encoder, projection_head, epoch, dataloaders["train1_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
@@ -292,421 +294,6 @@ def main(parse_args, configs):
     return
 
 
-def train_triplet(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, scheduler, criterion, configs, log_path):
-    device = torch.device("cuda")
-
-    encoder.train()
-    projection_head.train()
-
-    total_loss = 0
-
-    if configs.batch_mode == "Regular":
-        progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch [{epoch}]")
-    elif configs.batch_mode == "ByEpitope":
-        progress_bar = enumerate(train_loader)
-    else:
-        raise ValueError("Invalid batch mode specified in configs.")
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_average.pkl")
-        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
-        epitope_sums = {}
-        epitope_counts = {}
-
-    for batch, data in progress_bar:
-        epitope_list = data['anchor_epitope']
-        anchor_list = data['anchor_TCR']
-        positive_list = data['positive_TCR']
-        negative_list = data['negative_TCR']
-
-        anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
-        _, _, anchor_tokens = tokenizer(anchor_seq_batch)
-
-        positive_seq_batch = [(epitope_list[i], str(positive_list[i])) for i in range(len(epitope_list))]
-        _, _, positive_tokens = tokenizer(positive_seq_batch)
-
-        negative_seq_batch = [(epitope_list[i], str(negative_list[i])) for i in range(len(epitope_list))]
-        _, _, negative_tokens = tokenizer(negative_seq_batch)
-
-        anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-        positive_embs = projection_head(encoder(positive_tokens.to(device)).mean(dim=1))
-        negative_embs = projection_head(encoder(negative_tokens.to(device)).mean(dim=1))
-
-        loss = criterion(anchor_embs, positive_embs, negative_embs)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        scheduler.step()
-
-        total_loss += loss.item()
-
-        if configs.batch_mode == "Regular":
-            progress_bar.set_postfix(loss=loss.item())
-
-        if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-            for i, epitope in enumerate(epitope_list):
-                if epitope not in epitope_sums:
-                    epitope_sums[epitope] = anchor_embs[i]
-                    epitope_counts[epitope] = 1
-                else:
-                    epitope_sums[epitope] += anchor_embs[i]
-                    epitope_counts[epitope] += 1
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        epitope_data = {
-            epitope: {
-                "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-                "count": epitope_counts[epitope]
-            }
-            for epitope in epitope_sums
-        }
-
-        N = int(configs.hard_neg_mining_sample_num)
-        nearest_neighbors = {}
-
-        for i, epitope1 in enumerate(epitope_sums.keys()):
-            emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-            # distances = []
-            similarities = []
-
-            for j, epitope2 in enumerate(epitope_sums.keys()):
-                if i == j:
-                    continue
-                emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                # distance = torch.dist(emb1, emb2).item()
-                # distances.append((epitope2, distance))
-                similarity = F.cosine_similarity(emb1.unsqueeze(0), emb2.unsqueeze(0)).item()
-                similarities.append((epitope2, similarity))
-
-            # distances.sort(key=lambda x: x[1])
-            # nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-            #                                distances[:N]]
-            similarities.sort(key=lambda x: x[1], reverse=True)
-            nearest_neighbors[epitope1] = [{"epitope": epitope, "similarity": sim} for epitope, sim in similarities[:N]]
-
-    avg_loss = total_loss / len(train_loader)
-    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        with open(log_file_average, "wb") as f:
-            pickle.dump(epitope_data, f)
-            # print(len(epitope_data))
-
-        with open(log_file_distance, "wb") as f:
-            pickle.dump(nearest_neighbors, f)
-
-        printl(f"Distance map updated.", log_path=log_path)
-        return nearest_neighbors
-
-    return None
-
-
-def train_multi(encoder, projection_head, epoch, train_loader, tokenizer, optimizer, scheduler, criterion, configs, log_path):
-    device = torch.device("cuda")
-
-    encoder.train()
-    projection_head.train()
-
-    total_loss = 0
-
-    if configs.batch_mode == "Regular":
-        progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch [{epoch}]")
-    elif configs.batch_mode == "ByEpitope":
-        progress_bar = enumerate(train_loader)
-    else:
-        raise ValueError("Invalid batch mode specified in configs.")
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        log_dir = os.path.dirname(log_path)
-        log_file_average = os.path.join(log_dir, "epitope_average.pkl")
-        log_file_distance = os.path.join(log_dir, "epitope_distance.pkl")
-        epitope_sums = {}
-        epitope_counts = {}
-
-    for batch, data in progress_bar:
-        epitope_list = []
-        anchor_positive_negative_list = []
-        for element in data:
-            epitope_list.append(element['anchor_epitope'])
-            anc_pos_neg_mini_batch = [(None, str(element['anchor_positive_negative_TCR'][i])) for i in range(len(element['anchor_positive_negative_TCR']))]
-            # print(anc_pos_neg_mini_batch)
-            _, _, anc_pos_neg_tokens_mini_batch = tokenizer(anc_pos_neg_mini_batch)
-            # print(anc_pos_neg_tokens_mini_batch)
-            anc_pos_neg_emb_mini_batch = projection_head(encoder(anc_pos_neg_tokens_mini_batch.to(device)).mean(dim=1))
-            # print(anc_pos_neg_emb_mini_batch)
-            # print(anc_pos_neg_emb_mini_batch.shape)
-            # exit(0)
-            anchor_positive_negative_list.append(anc_pos_neg_emb_mini_batch)
-        anchor_positive_negative = torch.stack(anchor_positive_negative_list)
-        # print(len(epitope_list), epitope_list)
-        # print(anchor_positive_negative.shape)
-        # exit(0)
-
-        loss = criterion(anchor_positive_negative, configs.temp, configs.n_pos)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        scheduler.step()
-
-        total_loss += loss.item()
-
-        if configs.batch_mode == "Regular":
-            progress_bar.set_postfix(loss=loss.item())
-
-        if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-            for i, epitope in enumerate(epitope_list):
-                if epitope not in epitope_sums:
-                    epitope_sums[epitope] = anchor_positive_negative[i][0]
-                    epitope_counts[epitope] = 1
-                else:
-                    epitope_sums[epitope] += anchor_positive_negative[i][0]
-                    epitope_counts[epitope] += 1
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        epitope_data = {
-            epitope: {
-                "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-                "count": epitope_counts[epitope]
-            }
-            for epitope in epitope_sums
-        }
-
-        N = int(configs.hard_neg_mining_sample_num)
-        nearest_neighbors = {}
-
-        for i, epitope1 in enumerate(epitope_sums.keys()):
-            emb1 = epitope_data[epitope1]["average_embedding"].clone().detach()
-            # distances = []
-            similarities = []
-
-            for j, epitope2 in enumerate(epitope_sums.keys()):
-                if i == j:
-                    continue
-                emb2 = epitope_data[epitope2]["average_embedding"].clone().detach()
-                # distance = torch.dist(emb1, emb2).item()
-                # distances.append((epitope2, distance))
-                similarity = F.cosine_similarity(emb1.unsqueeze(0), emb2.unsqueeze(0)).item()
-                similarities.append((epitope2, similarity))
-
-            # distances.sort(key=lambda x: x[1])
-            # nearest_neighbors[epitope1] = [{"epitope": epitope, "distance": dist} for epitope, dist in
-            #                                distances[:N]]
-            similarities.sort(key=lambda x: x[1], reverse=True)
-            nearest_neighbors[epitope1] = [{"epitope": epitope, "similarity": sim} for epitope, sim in similarities[:N]]
-    avg_loss = total_loss / len(train_loader)
-    printl(f"Epoch [{epoch}] completed. Average Loss: {avg_loss:.4f}", log_path=log_path)
-
-    if configs.negative_sampling_mode == 'HardNeg' and epoch % configs.hard_neg_mining_adaptive_rate == 0:
-        with open(log_file_average, "wb") as f:
-            pickle.dump(epitope_data, f)
-            # print(len(epitope_data))
-
-        with open(log_file_distance, "wb") as f:
-            pickle.dump(nearest_neighbors, f)
-
-        printl(f"Distance map updated.", log_path=log_path)  # 慢, 得查查为什么
-        return nearest_neighbors
-
-    return None
-
-
-def infer_one(encoder, projection_head, train_loader, tokenizer, valid_or_test_loader, log_path):
-    device = torch.device("cuda")
-    # Set models to evaluation mode for inference
-    encoder.eval()
-    projection_head.eval()
-
-    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Cluster Center Calculation")
-
-    log_dir = os.path.dirname(log_path)
-    log_file_average = os.path.join(log_dir, "epitope_average.pkl")
-
-    epitope_sums = {}
-    epitope_counts = {}
-
-    with torch.no_grad():
-        for batch, data in progress_bar:
-            epitope_list = data['anchor_epitope']
-            anchor_list = data['anchor_TCR']
-
-            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
-            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
-
-            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-
-            for i, epitope in enumerate(epitope_list):
-                if epitope not in epitope_sums:
-                    epitope_sums[epitope] = anchor_embs[i]
-                    epitope_counts[epitope] = 1
-                else:
-                    epitope_sums[epitope] += anchor_embs[i]
-                    epitope_counts[epitope] += 1
-    epitope_data = {
-        epitope: {
-            "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-            "count": epitope_counts[epitope]
-        }
-        for epitope in epitope_sums
-    }
-
-    with open(log_file_average, "wb") as f:
-        pickle.dump(epitope_data, f)
-        printl(f"Cluster center calculation completed and saved to {log_file_average}.", log_path=log_path)
-
-    progress_bar2 = tqdm(enumerate(valid_or_test_loader), total=len(valid_or_test_loader), desc="Finding Nearest Cluster Centers")
-    true_classes = []
-    predicted_classes = []
-
-    prediction_probabilities = []
-
-    with torch.no_grad():
-        for batch, data in progress_bar2:
-            epitope_list = data['epitope']
-            anchor_list = data['TCR']
-
-            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
-            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
-
-            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-
-            for i, epitope in enumerate(epitope_list):
-                true_classes.append(epitope)
-
-                # Calculate distances to all cluster centers and convert to probabilities
-                distances = []
-                for cluster_epitope, cluster_data in epitope_data.items():
-                    cluster_emb = cluster_data["average_embedding"].to(device)
-                    distance = torch.dist(anchor_embs[i], cluster_emb).item()
-                    distances.append((cluster_epitope, distance))
-
-                # Convert distances to similarity scores (e.g., inverse distance or cosine similarity)
-                inverse_distances = torch.tensor([1 / (d[1] + 1e-8) for d in distances])  # Avoid division by zero
-                probabilities = F.softmax(inverse_distances, dim=0).cpu().numpy()
-
-                # Get the epitope with the highest probability as prediction
-
-                nearest_epitope = distances[np.argmax(probabilities)][0]
-                predicted_classes.append(nearest_epitope)
-                prediction_probabilities.append(dict(zip([d[0] for d in distances], probabilities)))
-
-    return true_classes, predicted_classes, prediction_probabilities
-
-    # return true_classes, predicted_classes
-
-
-def infer_features(encoder, projection_head, train_loader, tokenizer, valid_or_test_loader, log_path):
-    device = torch.device("cuda")
-
-    encoder.eval()
-    projection_head.eval()
-
-    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Cluster Center Calculation")
-
-    log_dir = os.path.dirname(log_path)
-    log_file_average = os.path.join(log_dir, "epitope_average.pkl")
-
-    epitope_sums = {}
-    epitope_counts = {}
-
-    with torch.no_grad():
-        for batch, data in progress_bar:
-            epitope_list = data['anchor_epitope']
-            anchor_list = data['anchor_TCR']
-
-            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
-            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
-
-            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-
-            for i, epitope in enumerate(epitope_list):
-                if epitope not in epitope_sums:
-                    epitope_sums[epitope] = anchor_embs[i]
-                    epitope_counts[epitope] = 1
-                else:
-                    epitope_sums[epitope] += anchor_embs[i]
-                    epitope_counts[epitope] += 1
-    epitope_data = {
-        epitope: {
-            "average_embedding": (epitope_sums[epitope] / epitope_counts[epitope]),
-            "count": epitope_counts[epitope]
-        }
-        for epitope in epitope_sums
-    }
-
-    with open(log_file_average, "wb") as f:
-        pickle.dump(epitope_data, f)
-        printl(f"Cluster center calculation completed and saved to {log_file_average}.", log_path=log_path)
-
-    progress_bar2 = tqdm(enumerate(valid_or_test_loader), total=len(valid_or_test_loader), desc="Finding Nearest Cluster Centers")
-    true_classes = []
-
-    feature_list = []
-
-    with torch.no_grad():
-        for batch, data in progress_bar2:
-            epitope_list = data['epitope']
-            anchor_list = data['TCR']
-            label_list = data['label']
-
-            anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
-            _, _, anchor_tokens = tokenizer(anchor_seq_batch)
-
-            anchor_embs = projection_head(encoder(anchor_tokens.to(device)).mean(dim=1))
-
-            for i, epitope in enumerate(epitope_list):
-                true_classes.append(epitope)
-
-                cosine_similarities = []
-                for cluster_epitope, cluster_data in epitope_data.items():
-                    cluster_emb = cluster_data["average_embedding"].to(device)
-                    cos_sim = F.cosine_similarity(anchor_embs[i].unsqueeze(0), cluster_emb.unsqueeze(0)).item()
-                    cosine_similarities.append((cluster_epitope, cos_sim))
-
-                cosine_similarities.sort(key=lambda x: x[1])
-
-                similarity_values = [d[1] for d in cosine_similarities]
-
-                min_similarity = min(similarity_values)
-                max_similarity = max(similarity_values)
-                avg_similarity = sum(similarity_values) / len(similarity_values)
-                median_similarity = np.median(similarity_values)
-                std_similarity = np.std(similarity_values)
-                skewness_similarity = skew(similarity_values)
-                kurtosis_similarity = kurtosis(similarity_values, fisher=True)
-
-                target_cluster_emb = epitope_data[epitope]["average_embedding"].to(device)
-                similarity_to_own_cluster = F.cosine_similarity(anchor_embs[i].unsqueeze(0), target_cluster_emb.unsqueeze(0)).item()
-
-                rank_position = [d[0] for d in cosine_similarities].index(epitope) + 1  # 索引从0开始，故加1
-
-                features = {
-                    'x': anchor_list[i],
-                    'y': epitope,
-                    'similarity_to_own_cluster': similarity_to_own_cluster,
-                    'max_similarity': max_similarity,
-                    'min_similarity': min_similarity,
-                    'avg_similarity': avg_similarity,
-                    'median_similarity': median_similarity,
-                    'std_similarity': std_similarity,
-                    'skewness_similarity': skewness_similarity,
-                    'kurtosis_similarity': kurtosis_similarity,
-                    'rank_position': rank_position,
-                    'label': int(label_list[i]),
-                }
-
-                feature_list.append(features)
-
-    feature_df = pd.DataFrame(feature_list)
-    csv_path = os.path.join(log_dir, 'feature_data.csv')
-    feature_df.to_csv(csv_path, index=False)
-    printl(f"Features are saved to {csv_path}.", log_path=log_path)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='ContraTCR: A tool for training and predicting TCR-epitope binding using '
                                                  'contrastive learning.')
@@ -715,13 +302,13 @@ if __name__ == "__main__":
                                               "parameters and settings for the operation.",
                         default='./config/default/config.yaml')
     parser.add_argument("--mode", help="Operation mode of the script. Use 'train' for training the model and "
-                                       "'predict' for making predictions using an existing model. Default mode is "
+                                       "'infer' for feature generation using an existing model. Default mode is "
                                        "'train'.", default='train')
     parser.add_argument("--result_path", default='./result/default/',
                         help="Path where the results will be stored. If not set, results are saved to "
                              "'./result/default/'. This can include prediction outputs or saved models.")
     parser.add_argument("--resume_path", default=None,
-                        help="Path to a previously saved model checkpoint. If specified, training or prediction will "
+                        help="Path to a previously saved model checkpoint. If specified, training or inference will "
                              "resume from this checkpoint. By default, this is None, meaning training starts from "
                              "scratch.")
 
