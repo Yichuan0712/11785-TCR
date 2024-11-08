@@ -125,7 +125,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 **Command**:
 
 ```bash
-!python ./run.py --config_path ./config/default/your_config.yaml \
+!python ./run.py --config_path './config/default/your_config.yaml' \
 --train_feature_path '/path/to/your/feature_data_train.csv' \
 --test_feature_path '/path/to/your/feature_data_test.csv' \
 --mode predict
