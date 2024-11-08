@@ -175,7 +175,7 @@ def main(parse_args, configs):
         printl("Start inference.", log_path=log_path)
         printl(f"{'=' * 128}", log_path=log_path)
 
-        infer_features(encoder, projection_head, inference_dataloaders["train1_loader"], inference_dataloaders["train2_loader"], inference_dataloaders["test_loader"], tokenizer, log_path)
+        infer_features(encoder, projection_head, dataloaders["train1_loader"], inference_dataloaders["train2_loader"], inference_dataloaders["test_loader"], tokenizer, log_path)
 
         return
     else:
