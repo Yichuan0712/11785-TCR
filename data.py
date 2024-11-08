@@ -341,6 +341,7 @@ class PytdcDatasetInfer(Dataset):
 
         epitope = dataframe['epitope_aa'].values
         label = dataframe['label'].values
+        epitope_smi = dataframe['epitope_smi'].values
 
         if is_train:
             TCR = TCR[label == 1]
@@ -348,19 +349,20 @@ class PytdcDatasetInfer(Dataset):
             label = label[label == 1]
         self.TCR = TCR
         self.epitope = epitope
+        self.epitope_smi = epitope_smi
         self.label = label
 
         self.full_list = []
 
         for tcr, epitope, label in zip(self.TCR, self.epitope, self.label):
-            self.full_list.append((tcr, epitope, label))
+            self.full_list.append((tcr, epitope, epitope_smi, label))
 
     def __len__(self):
         return len(self.full_list)
 
     def __getitem__(self, idx):
-        TCR, epitope, label = self.full_list[idx]
-        return {'epitope': epitope, 'TCR': TCR, 'label': label}
+        TCR, epitope, epitope_smi, label = self.full_list[idx]
+        return {'epitope': epitope, 'TCR': TCR, 'epitope_smi': epitope_smi, 'label': label}
 
 
 def get_dataloader_infer(configs):

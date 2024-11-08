@@ -63,6 +63,7 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
         for batch, data in progress_bar2:
             epitope_list = data['epitope']
             anchor_list = data['TCR']
+            epitope_smi_list = data['epitope_smi']
             label_list = data['label']
 
             anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
@@ -99,6 +100,7 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
                 features = {
                     'x': anchor_list[i],
                     'y': epitope,
+                    'smi': epitope_smi_list[i],
                     'similarity_to_own_cluster': similarity_to_own_cluster,
                     'max_similarity': max_similarity,
                     'min_similarity': min_similarity,
@@ -128,6 +130,7 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
         for batch, data in progress_bar3:
             epitope_list = data['epitope']
             anchor_list = data['TCR']
+            epitope_smi_list = data['epitope_smi']
             label_list = data['label']
 
             anchor_seq_batch = [(epitope_list[i], str(anchor_list[i])) for i in range(len(epitope_list))]
@@ -165,6 +168,7 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
                 features = {
                     'x': anchor_list[i],
                     'y': epitope,
+                    'smi': epitope_smi_list[i],
                     'similarity_to_own_cluster': similarity_to_own_cluster,
                     'max_similarity': max_similarity,
                     'min_similarity': min_similarity,
