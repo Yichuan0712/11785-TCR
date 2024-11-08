@@ -8,7 +8,7 @@
  
 # ContraTCR: A Guide to Training and Predicting TCR-Epitope Binding
 
-Welcome to **ContraTCR**, a tool designed for training and predicting T-cell receptor (TCR) and epitope binding using contrastive learning techniques. This guide will walk you through the steps required to run the project, from training the model to making predictions. Please note that the code and file paths provided are examples; you will need to replace them with your own data and paths specific to your environment.
+Welcome to **ContraTCR**, a tool designed for training and predicting T-cell receptor (TCR) and epitope binding using contrastive learning techniques. This guide will walk you through the steps required to run the project, from training the model to making predictions. 
 
 ---
 
@@ -26,9 +26,9 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
 
 ## Introduction
 
-**ContraTCR** leverages contrastive learning to model the interaction between T-cell receptors and epitopes. By training on your own datasets, it aims to predict binding specificity with high accuracy. This guide provides a step-by-step walkthrough for users to:
+**ContraTCR** leverages contrastive learning to model the interaction between T-cell receptors and epitopes. By training on the PyTDC dataset, it aims to predict binding specificity with high accuracy. This guide provides a step-by-step walkthrough for users to:
 
-- Train the ESM-2 model along with the projection head using their own data.
+- Train the ESM-2 model along with the projection head using PyTDC data.
 - Extract features using the trained model.
 - Use the extracted features to train an XGBoost model for binding specificity prediction.
 
@@ -87,7 +87,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 ### Step 2: Extract Features Using the Trained Model
 
-**Description**: Utilize the trained ESM-2 model and projection head to extract features from your dataset.
+**Description**: Utilize the trained ESM-2 model and projection head to extract features from the dataset.
 
 **Command**:
    ```bash
