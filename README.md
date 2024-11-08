@@ -6,7 +6,7 @@
     |  `----.|  `--'  | |  |\   |     |  |     |  |\  \----./  _____  \   |  |     |  `----.|  |\  \----.
      \______| \______/  |__| \__|     |__|     | _| `._____/__/     \__\  |__|      \______|| _| `._____|
  
-# ContraTCR: A Guide to Training and Predicting TCR-Epitope Binding
+# ContraTCR: Predicting TCR-Epitope Binding Specificity Using Fine-Tuned Protein Language Models and a Contrastive Learning Approach
 
 Welcome to **ContraTCR**, a tool designed for training and predicting T-cell receptor (TCR) and epitope binding using contrastive learning techniques. This guide will walk you through the steps required to run the project, from training the model to making predictions. 
 
