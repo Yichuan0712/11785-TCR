@@ -361,8 +361,8 @@ class PytdcDatasetInfer(Dataset):
         return len(self.full_list)
 
     def __getitem__(self, idx):
-        TCR, epitope, epitope_smi, label = self.full_list[idx]
-        return {'epitope': epitope, 'TCR': TCR, 'epitope_smi': epitope_smi, 'label': label}
+        TCR, epitope, label = self.full_list[idx]
+        return {'epitope': epitope, 'TCR': TCR, 'label': label}
 
 
 def get_dataloader_infer(configs):
