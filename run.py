@@ -21,6 +21,7 @@ import pandas as pd
 from scipy.stats import skew, kurtosis
 from train import train_triplet, train_multi
 from extract import extract_features
+from xgb import xgb_train_and_evaluate
 
 
 def main(parse_args, configs):
@@ -74,9 +75,14 @@ def main(parse_args, configs):
     """
     Predict?
     """
-    if parse_args.mode == 'predict' and parse_args.feature_path is not None:
-
-        return
+    if parse_args.mode == 'predict':
+        if parse_args.train_feature_path is not None and parse_args.test_feature_path is not None:
+            printl(f"{'=' * 128}", log_path=log_path)
+            printl(f"XGBoost model training & binding specificity prediction.", log_path=log_path)
+            xgb_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, log_path)
+            return
+        else:
+            raise NotImplementedError
     """
     Dataloader
     """
@@ -244,7 +250,10 @@ if __name__ == "__main__":
                         help="Path to a previously saved model checkpoint. If specified, training or extraction will "
                              "resume from this checkpoint. By default, this is None, meaning training starts from "
                              "scratch.")
-    parser.add_argument("--feature_path", default=None,
+    parser.add_argument("--train_feature_path", default=None,
+                        help="Path to the input data file. This location has to be specified to be used to "
+                             "load data for binding specificity prediction. ")
+    parser.add_argument("--test_feature_path", default=None,
                         help="Path to the input data file. This location has to be specified to be used to "
                              "load data for binding specificity prediction. ")
 
