@@ -25,6 +25,8 @@ def infer_features(encoder, projection_head, train1_loader, train2_loader, test_
 
     with torch.no_grad():
         for batch, data in progress_bar:
+            print(len(data))
+            print(data)
             epitope_list = data['anchor_epitope']
             anchor_list = data['anchor_TCR']
 
