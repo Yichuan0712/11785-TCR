@@ -62,7 +62,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 **Command**:
 
 ```bash
-!python ./run.py --config_path ./config/default/your_config.yaml --mode train
+!python ./run.py --config_path './config/default/your_config.yaml' --mode train
 ```
 
 **Instructions**:
