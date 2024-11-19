@@ -59,6 +59,8 @@ def xgb_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
             X_features = X['epitope_smi'].apply(extract_features)
             X = pd.concat([X, X_features], axis=1)
             X = X.drop(columns=['epitope_smi'])
+        else:
+            X = X.drop(columns=['epitope_smi'])
 
         return X, encoder
 
