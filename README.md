@@ -19,7 +19,7 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
 3. [Running the Project](#running-the-project)
     - [Step 1: Train the ESM-2 Model with Projection Head](#step-1-train-the-esm-2-model-with-projection-head)
     - [Step 2: Extract Features Using the Trained Model](#step-2-extract-features-using-the-trained-model)
-    - [Step 3: Predict Binding Specificity with XGBoost](#step-3-predict-binding-specificity-with-xgboost)
+    - [Step 3: Predict Binding Specificity with Classifiers](#step-3-predict-binding-specificity-with-classifiers)
 4. [References](#references)
 
 ---
@@ -30,7 +30,7 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
 
 - Train the ESM-2 model along with the projection head using modified PyTDC data.
 - Extract features using the trained model.
-- Use the extracted features to train an XGBoost model for binding specificity prediction.
+- Use the extracted features to train classifiers for binding specificity prediction.
 
 
 ---
@@ -45,7 +45,9 @@ The project consists of several key files and directories:
 - `data.py`: Data loading and preprocessing utilities.
 - `train.py`: Training routines for different contrastive modes.
 - `extract.py`: Feature extraction functions.
-- `xgb.py`: Functions for training and evaluating the XGBoost model.
+- `xgb.py`: Functions for training and evaluating the XGB model.
+- `mlp.py`: Functions for training and evaluating the MLP model.
+- `cnn.py`: Functions for training and evaluating the CNN model.
 - `result/`: Default directory where results, logs, and checkpoints are saved.
 
 
