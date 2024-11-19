@@ -99,6 +99,3 @@ def xgb_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     printl(f'F1 Score on test data: {f1:.2f}', log_path=log_path)
     printl('Classification Report:', log_path=log_path)
     printl(classification_report(y_test, y_pred), log_path=log_path)
-
-# Example usage
-# train_and_evaluate('/content/11785-TCR/dataset/XGB/feature_data_train.csv', '/content/11785-TCR/dataset/XGB/feature_data_test.csv')
