@@ -120,7 +120,8 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 ### Step 3: Predict Binding Specificity with Classifiers
 
-**Description**: Use the extracted features to train different models (XGB, MLP, CNN) and perform binding specificity prediction.
+**Description**: Use the extracted features to train different models, including XGB, MLP, and CNN, and perform binding specificity prediction.
+
 
 **Command**:
 
