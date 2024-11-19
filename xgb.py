@@ -7,7 +7,7 @@ from rdkit.Chem import Descriptors
 from util import printl, printl_file
 
 
-def xgb_train_and_evaluate(configs, train_csv_path, test_csv_path, log_path):
+def xgb_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_path):
     if configs.dataset != "PyTDC":
         raise NotImplementedError
 
@@ -63,12 +63,12 @@ def xgb_train_and_evaluate(configs, train_csv_path, test_csv_path, log_path):
         return X, encoder
 
     # Prepare training features
-    X_train, encoder = prepare_features(df_train, use_smi=True)
+    X_train, encoder = prepare_features(df_train, use_smi=use_smi)
     # Target labels for training
     y_train = df_train['label']
 
     # Prepare test features
-    X_test, _ = prepare_features(df_test, use_smi=True, encoder=encoder)
+    X_test, _ = prepare_features(df_test, use_smi=use_smi, encoder=encoder)
     # Target labels for testing
     y_test = df_test['label']
 
