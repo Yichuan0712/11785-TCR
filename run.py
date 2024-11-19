@@ -22,6 +22,7 @@ from scipy.stats import skew, kurtosis
 from train import train_triplet, train_multi
 from extract import extract_features
 from xgb import xgb_train_and_evaluate
+from mlp import mlp_train_and_evaluate
 
 
 def main(parse_args, configs):
@@ -85,10 +86,10 @@ def main(parse_args, configs):
             xgb_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, use_smi=True, log_path=log_path)
             printl(f"{'=' * 128}", log_path=log_path)
             printl(f"MLP model training & binding specificity prediction", log_path=log_path)
-            xgb_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, use_smi=False, log_path=log_path)
+            mlp_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, use_smi=False, log_path=log_path)
             printl(f"{'=' * 128}", log_path=log_path)
             printl(f"MLP model training & binding specificity prediction - with additional SMI features", log_path=log_path)
-            xgb_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, use_smi=True, log_path=log_path)
+            mlp_train_and_evaluate(configs, parse_args.train_feature_path, parse_args.test_feature_path, use_smi=True, log_path=log_path)
             return
         else:
             raise NotImplementedError
