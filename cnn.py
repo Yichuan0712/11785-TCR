@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from util import printl, printl_file
 
 
-def enhanced_cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_path):
+def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_path):
     if configs.dataset != "PyTDC":
         raise NotImplementedError
 
@@ -164,14 +164,3 @@ def enhanced_cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_
     report = classification_report(y_test, y_pred)
     printl(report, log_path=log_path)
 
-    # Optionally, save the model
-    # model.save('enhanced_cnn_model.h5')
-
-# Example usage
-# enhanced_cnn_train_and_evaluate(
-#     configs=your_configs_object,  # Replace with your actual config object
-#     train_csv_path='/content/11785-TCR/dataset/XGB/feature_data_train.csv',
-#     test_csv_path='/content/11785-TCR/dataset/XGB/feature_data_test.csv',
-#     use_smi=True,
-#     log_path='log.txt'
-# )
