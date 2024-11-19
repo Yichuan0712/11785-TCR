@@ -5,8 +5,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Dropout, BatchNormalization, GlobalMaxPooling1D
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Dropout, BatchNormalization, Input
+from tensorflow.keras.callbacks import EarlyStopping
 from util import printl, printl_file
 
 
@@ -29,7 +29,7 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     def extract_features(smiles):
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return pd.Series([0] * 5)  # If SMILES is invalid, return zeros
+            return pd.Series([None] * 5)  # If SMILES is invalid, return zeros
         features = {
             'mol_weight': Descriptors.MolWt(mol),
             'logP': Descriptors.MolLogP(mol),
@@ -47,6 +47,7 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
         if 'y' in non_numeric_columns:
             # One-hot encode the 'y' column
             if encoder is None:
+                # Use 'sparse_output' for scikit-learn 1.2+
                 encoder = OneHotEncoder(sparse_output=False, drop='first')
                 y_encoded = encoder.fit_transform(X[['y']])
             else:
@@ -92,10 +93,11 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     X_train_cnn = X_train_scaled.reshape(X_train_scaled.shape[0], X_train_scaled.shape[1], 1)
     X_test_cnn = X_test_scaled.reshape(X_test_scaled.shape[0], X_test_scaled.shape[1], 1)
 
-    # Build Enhanced CNN model
+    # Build Enhanced CNN model with explicit Input layer
     model = Sequential([
+        Input(shape=(X_train_cnn.shape[1], 1)),  # Explicit Input layer
         # First Convolutional Block
-        Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=(X_train_cnn.shape[1], 1)),
+        Conv1D(filters=64, kernel_size=3, activation='relu'),
         BatchNormalization(),
         Conv1D(filters=64, kernel_size=3, activation='relu'),
         BatchNormalization(),
@@ -134,15 +136,14 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
 
     # Set up callbacks
     early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
-    model_checkpoint = ModelCheckpoint('best_cnn_model.h5', monitor='val_loss', save_best_only=True, verbose=1)
 
-    # Train the model
+    # Train the model without ModelCheckpoint
     history = model.fit(
         X_train_cnn, y_train,
         epochs=300,
         batch_size=32,
         validation_split=0.2,
-        callbacks=[early_stopping, model_checkpoint],
+        callbacks=[early_stopping],  # Removed ModelCheckpoint
         verbose=1
     )
 
@@ -164,3 +165,5 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     report = classification_report(y_test, y_pred)
     printl(report, log_path=log_path)
 
+    # Optionally, save the model if needed in the future
+    # model.save('enhanced_cnn_model.keras')
