@@ -26,9 +26,9 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
 
 ## Introduction
 
-**ContraTCR** leverages contrastive learning to model the interaction between T-cell receptors and epitopes. By training on the PyTDC dataset, it aims to predict binding specificity with high accuracy. This guide provides a step-by-step walkthrough for users to:
+**ContraTCR** leverages contrastive learning to model the interaction between T-cell receptors and epitopes. By training on the modified PyTDC dataset, it aims to predict binding specificity with high accuracy. This guide provides a step-by-step walkthrough for users to:
 
-- Train the ESM-2 model along with the projection head using PyTDC data.
+- Train the ESM-2 model along with the projection head using modified PyTDC data.
 - Extract features using the trained model.
 - Use the extracted features to train an XGBoost model for binding specificity prediction.
 
