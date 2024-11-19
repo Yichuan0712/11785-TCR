@@ -75,8 +75,8 @@ def mlp_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     y_test = df_test['label']
 
     # Handle missing values if any
-    X_train.fillna(0, inplace=True)
-    X_test.fillna(0, inplace=True)
+    # X_train.fillna(0, inplace=True)
+    # X_test.fillna(0, inplace=True)
 
     # Feature Scaling
     scaler = StandardScaler()
