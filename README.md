@@ -118,9 +118,9 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 ---
 
-### Step 3: Predict Binding Specificity with XGBoost
+### Step 3: Predict Binding Specificity with Classifiers
 
-**Description**: Use the extracted features to train an XGBoost model and perform binding specificity prediction.
+**Description**: Use the extracted features to train different models and perform binding specificity prediction.
 
 **Command**:
 
@@ -144,7 +144,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 3. **Run Prediction**:
 
-   - Execute the command to start training the XGBoost model and perform predictions.
+   - Execute the command to start training the models and perform predictions.
    - The script will output performance metrics such as precision, recall, F1 score, and ROC AUC.
 
 ---
@@ -153,5 +153,4 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 - **ESM-2 Model**: [Evolutionary Scale Modeling (ESM) GitHub Repository](https://github.com/facebookresearch/esm)
 - **Contrastive Learning**: [A Simple Framework for Contrastive Learning of Visual Representations](https://arxiv.org/abs/2002.05709)
-- **XGBoost**: [XGBoost Documentation](https://xgboost.readthedocs.io/)
 
