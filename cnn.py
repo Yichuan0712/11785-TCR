@@ -47,7 +47,7 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
         if 'y' in non_numeric_columns:
             # One-hot encode the 'y' column
             if encoder is None:
-                encoder = OneHotEncoder(sparse=False, drop='first')
+                encoder = OneHotEncoder(sparse_output=False, drop='first')
                 y_encoded = encoder.fit_transform(X[['y']])
             else:
                 y_encoded = encoder.transform(X[['y']])
