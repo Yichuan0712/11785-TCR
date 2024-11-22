@@ -23,4 +23,4 @@ source activate /home/yz3qt/data/miniconda/envs/splm
 export TORCH_HOME=/home/yz3qt/data/torch_cache/
 export HF_HOME=/home/yz3qt/data/transformers_cache/
 
-python ./run.py --config_path ./config/final/final_clean_adapter_12.yaml --mode train || true
+python ./run.py --config_path ./config/final/final_clean_adapter_12.yaml --mode train --result_path ./result/final_clean/ || true
