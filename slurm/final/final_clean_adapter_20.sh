@@ -7,7 +7,7 @@
 #SBATCH --output=output_final_clean_adapter_20.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name CleAdp20
+#SBATCH --job-name ClnAdp20
 
 ##SBATCH -p requeue
 #SBATCH -p gpu

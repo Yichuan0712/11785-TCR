@@ -7,7 +7,7 @@
 #SBATCH --output=output_final_clean_lora_33.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name CleLo33
+#SBATCH --job-name ClnLo33
 
 ##SBATCH -p requeue
 #SBATCH -p gpu

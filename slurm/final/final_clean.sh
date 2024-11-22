@@ -7,7 +7,7 @@
 #SBATCH --output=output_final_clean.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name Cle
+#SBATCH --job-name Cln
 
 ##SBATCH -p requeue
 #SBATCH -p gpu

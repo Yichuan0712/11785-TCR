@@ -7,7 +7,7 @@
 #SBATCH --output=output_final_clean_finetune_4.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name CleFt4
+#SBATCH --job-name ClnFt4
 
 ##SBATCH -p requeue
 #SBATCH -p gpu
