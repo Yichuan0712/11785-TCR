@@ -7,7 +7,7 @@ batch_mode: "ByEpitope"
               # "ByEpitope"
               # "Regular"
 batch_size: 192  # 192
-epochs: 34800
+epochs: 34400  # 86 * 400
 max_learning_rate: 3e-4
 min_learning_rate: 0
 
