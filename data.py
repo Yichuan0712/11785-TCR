@@ -316,10 +316,10 @@ def get_dataloader(configs, nearest_neighbors):
             raise ValueError("Invalid batch mode specified in configs.")
 
         if configs.contrastive_mode == "Triplet":
-            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)  # , drop_last=True)
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
             # valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
         elif configs.contrastive_mode == "MultiPosNeg":
-            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=preserve_structure_collate_fn)  # , drop_last=True)
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=preserve_structure_collate_fn, drop_last=True)
             # valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=preserve_structure_collate_fn)
         return {'train1_loader': train_loader, 'train2_loader': None,  # valid_loader,
                 'epitope_TCR': train_dataset.epitope_TCR, 'TCR_epitope': train_dataset.TCR_epitope,
