@@ -6,7 +6,7 @@ tcr_embedding_source: "BindingSite"
 batch_mode: "Regular"
               # "ByEpitope"
               # "Regular"
-batch_size: 256  # 192
+batch_size: 192  # 192
 epochs: 400
 max_learning_rate: 3e-4
 min_learning_rate: 0
