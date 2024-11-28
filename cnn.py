@@ -16,10 +16,10 @@ def cnn_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
 
     # Load train and test datasets
     df_train = pd.read_csv(train_csv_path)
-    df_train_ori = pd.read_csv('/content/11785-TCR/dataset/pytdc_new/train2_PyTDC.csv')
+    df_train_ori = pd.read_csv('./dataset/pytdc_new/train2_PyTDC.csv')
 
     df_test = pd.read_csv(test_csv_path)
-    df_test_ori = pd.read_csv('/content/11785-TCR/dataset/pytdc_new/test_PyTDC.csv')
+    df_test_ori = pd.read_csv('./dataset/pytdc_new/test_PyTDC.csv')
 
     # Add 'epitope_smi' column from original train and test data
     df_train['epitope_smi'] = df_train_ori['epitope_smi'].values
