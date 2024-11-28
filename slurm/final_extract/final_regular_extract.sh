@@ -3,11 +3,11 @@
 #SBATCH -n 1
 #SBATCH --gres gpu:A100:1
 
-#SBATCH --error=error_final_regular.log
-#SBATCH --output=output_final_regular.log
+#SBATCH --error=error_final_regular_extract.log
+#SBATCH --output=output_final_regular_extract.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name Reg
+#SBATCH --job-name RegX
 
 ##SBATCH -p requeue
 #SBATCH -p gpu
