@@ -223,6 +223,9 @@ def main(parse_args, configs):
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict(),
             }, os.path.join(checkpoint_path, 'model_triplet.pth'))
+            if hasattr(configs, 'stop_epoch'):
+                if configs.stop_epoch == epoch:
+                    exit(0)
 
     elif configs.contrastive_mode == "MultiPosNeg" and parse_args.mode == 'train':
         criterion = SupConHardLoss
@@ -243,6 +246,9 @@ def main(parse_args, configs):
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict(),
             }, os.path.join(checkpoint_path, 'model_supcon.pth'))
+            if hasattr(configs, 'stop_epoch'):
+                if configs.stop_epoch == epoch:
+                    exit(0)
     else:
         raise ValueError("Wrong contrastive mode specified.")
 
