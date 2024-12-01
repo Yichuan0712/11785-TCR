@@ -55,7 +55,7 @@ The project consists of several key files and directories:
 
 ## Running the Project
 
-The project operates in three primary modes: `train`, `extract`, and `predict`. Below are detailed instructions for each step, including how to incorporate your own data.
+The project operates in three primary modes: `train`, `extract`, and `predict`. Below are detailed instructions for each step, including how to incorporate your own data. If you want to run it on Colab, please refer to `./colab/11785_project_runner.ipynb`
 
 ### Step 1: Train the ESM-2 Model with Projection Head
 
