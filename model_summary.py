@@ -7,10 +7,11 @@ if __name__ == '__main__':
         class AdapterH:
             enable = False
             num_end_adapter_layers = 12
+            module_type: "MLP1"
 
         class LoRA:
             enable = False
-            esm_num_end_lora = 33
+            esm_num_end_lora = 16
             r = 8
             alpha = 32
             dropout = 0.05
