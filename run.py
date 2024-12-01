@@ -230,7 +230,7 @@ def main(parse_args, configs):
         printl(f"{'=' * 128}", log_path=log_path)
         nearest_neighbors = None
         for epoch in range(resume_epoch + 1, configs.epochs + 1):
-            _nearest_neighbors = train_multi(encoder, projection_head, epoch, dataloaders["train_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
+            _nearest_neighbors = train_multi(encoder, projection_head, epoch, dataloaders["train1_loader"], tokenizer, optimizer, scheduler, criterion, configs, log_path)
             if configs.negative_sampling_mode == 'HardNeg':
                 if _nearest_neighbors is not None:
                     nearest_neighbors = _nearest_neighbors
