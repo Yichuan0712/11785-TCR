@@ -6,6 +6,7 @@ if __name__ == '__main__':
     class Config:
         class AdapterH:
             enable = False
+            num_end_adapter_layers = 12
 
         class LoRA:
             enable = False
@@ -16,7 +17,7 @@ if __name__ == '__main__':
 
         class FineTuning:
             enable = False
-            unfix_last_layer = 4
+            unfix_last_layer = 2
 
         adapter_h = AdapterH()
         lora = LoRA()
