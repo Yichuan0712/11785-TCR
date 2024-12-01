@@ -6,7 +6,7 @@ tcr_embedding_source: "BindingSite"
 batch_mode: "Regular"
               # "ByEpitope"
               # "Regular"
-batch_size: 192  # 192
+batch_size: 48  # 192
 epochs: 400
 max_learning_rate: 3e-4
 min_learning_rate: 0
@@ -23,8 +23,8 @@ scheduler_gamma: 1
 contrastive_mode: "MultiPosNeg"
                   # "Triplet"
                   # "MultiPosNeg"
-n_pos: 2
-n_neg: 6
+n_pos: 3
+n_neg: 8
 temp: 0.1
 
 negative_sampling_mode: "ExcludePos"
