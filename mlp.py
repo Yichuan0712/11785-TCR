@@ -108,9 +108,9 @@ def mlp_train_and_evaluate(configs, train_csv_path, test_csv_path, use_smi, log_
     aupr = average_precision_score(y_test, y_pred_proba)
     f1 = f1_score(y_test, y_pred)
 
-    printl(f'Accuracy on test data: {accuracy:.2f}', log_path=log_path)
-    printl(f'AUROC on test data: {auroc:.2f}', log_path=log_path)
-    printl(f'AUPR on test data: {aupr:.2f}', log_path=log_path)
-    printl(f'F1 Score on test data: {f1:.2f}', log_path=log_path)
+    printl(f'Accuracy on test data: {accuracy:.4f}', log_path=log_path)
+    printl(f'AUROC on test data: {auroc:.4f}', log_path=log_path)
+    printl(f'AUPR on test data: {aupr:.4f}', log_path=log_path)
+    printl(f'F1 Score on test data: {f1:.4f}', log_path=log_path)
     printl('Classification Report:', log_path=log_path)
     printl(classification_report(y_test, y_pred), log_path=log_path)
