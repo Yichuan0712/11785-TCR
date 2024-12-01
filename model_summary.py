@@ -64,4 +64,4 @@ if __name__ == '__main__':
 
     # 打印 Projection Head Summary
     print("\nProjection Head Summary:")
-    summary(projection_head, input_size=(1, configs.hidden_dim))
+    summary(projection_head, input_size=(1, 1280))
