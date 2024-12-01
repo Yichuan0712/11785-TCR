@@ -10,10 +10,10 @@
 #SBATCH --job-name RegMuLo33
 
 ##SBATCH -p requeue
-#SBATCH -p gpu
+##SBATCH -p gpu
 
-##SBATCH -p xudong-gpu
-##SBATCH -A xudong-lab
+#SBATCH -p xudong-gpu
+#SBATCH -A xudong-lab
 
 module load miniconda3
 
