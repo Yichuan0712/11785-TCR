@@ -1,5 +1,6 @@
 from torchinfo import summary
 from model import *
+import torch
 
 if __name__ == '__main__':
     class Config:
@@ -31,8 +32,11 @@ if __name__ == '__main__':
 
     encoder, projection_head = prepare_models(configs, log_path=None)
 
+    sequence_length = 1280
+    batch_size = 1
+    x = torch.randint(0, 20, (batch_size, sequence_length), dtype=torch.long)
     print("Encoder Summary:")
-    summary(encoder, input_size=(1, 1280))
+    summary(encoder, input_data=x)
 
     print("\nProjection Head Summary:")
     summary(projection_head, input_size=(1, 1280))
