@@ -7,7 +7,7 @@ if __name__ == '__main__':
         class AdapterH:
             enable = False
             num_end_adapter_layers = 12
-            module_type: "MLP1"
+            module_type = "MLP1"
 
         class LoRA:
             enable = False
