@@ -8,14 +8,14 @@ if __name__ == '__main__':
 
         class LoRA:
             enable = False
-            esm_num_end_lora = 0
+            esm_num_end_lora = 33
             r = 8
-            alpha = 16
-            dropout = 0.1
+            alpha = 32
+            dropout = 0.05
 
         class FineTuning:
             enable = False
-            unfix_last_layer = 0
+            unfix_last_layer = 4
 
         adapter_h = AdapterH()
         lora = LoRA()
@@ -23,7 +23,7 @@ if __name__ == '__main__':
         tune_ESM_table = False
         encoder_name = "esm2_t33_650M_UR50D"
         projection_head_name = "LayerNorm"
-        hidden_dim = 256
+        hidden_dim = 512
         out_dim = 128
         drop_out = 0.1
 
