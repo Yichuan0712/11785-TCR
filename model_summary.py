@@ -62,6 +62,11 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Error in {mode} mode: {e}")
 
-    # 打印 Projection Head Summary
     print("\nProjection Head Summary:")
     summary(projection_head, input_size=(1, 1280))
+
+"""
+# Colab
+!pip install torchinfo
+!python ./model_summary.py
+"""
