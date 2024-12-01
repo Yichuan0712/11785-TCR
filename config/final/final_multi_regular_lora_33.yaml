@@ -23,7 +23,7 @@ scheduler_gamma: 1
 contrastive_mode: "MultiPosNeg"
                   # "Triplet"
                   # "MultiPosNeg"
-n_pos: 9
+n_pos: 4
 n_neg: 20
 temp: 0.1
 
