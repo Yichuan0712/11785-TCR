@@ -8,6 +8,7 @@ batch_mode: "Regular"
               # "Regular"
 batch_size: 48  # 192
 epochs: 400
+stop_epoch: 100
 max_learning_rate: 3e-4
 min_learning_rate: 0
 
