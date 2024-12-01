@@ -30,13 +30,36 @@ if __name__ == '__main__':
 
     configs = Config()
 
-    encoder, projection_head = prepare_models(configs, log_path=None)
-
     sequence_length = 1280
     batch_size = 1
     x = torch.randint(0, 20, (batch_size, sequence_length), dtype=torch.long)
-    print("Encoder Summary:")
-    summary(encoder, input_data=x)
 
+    modes = ['default', 'adapter_h', 'lora', 'finetune']
+    for mode in modes:
+        if mode == 'adapter_h':
+            configs.adapter_h.enable = True
+            configs.lora.enable = False
+            configs.fine_tuning.enable = False
+        elif mode == 'lora':
+            configs.adapter_h.enable = False
+            configs.lora.enable = True
+            configs.fine_tuning.enable = False
+        elif mode == 'finetune':
+            configs.adapter_h.enable = False
+            configs.lora.enable = False
+            configs.fine_tuning.enable = True
+        else:  # default
+            configs.adapter_h.enable = False
+            configs.lora.enable = False
+            configs.fine_tuning.enable = False
+
+        encoder, projection_head = prepare_models(configs, log_path=None)
+        print(f"\nEncoder Summary ({mode} mode):")
+        try:
+            summary(encoder, input_data=x)
+        except Exception as e:
+            print(f"Error in {mode} mode: {e}")
+
+    # 打印 Projection Head Summary
     print("\nProjection Head Summary:")
-    summary(projection_head, input_size=(1, 1280))
+    summary(projection_head, input_size=(1, configs.hidden_dim))
