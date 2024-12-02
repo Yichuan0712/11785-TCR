@@ -20,7 +20,8 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
     - [Step 1: Train the ESM-2 Model with Projection Head](#step-1-train-the-esm-2-model-with-projection-head)
     - [Step 2: Extract Features Using the Trained Model](#step-2-extract-features-using-the-trained-model)
     - [Step 3: Predict Binding Specificity with Classifiers](#step-3-predict-binding-specificity-with-classifiers)
-4. [References](#references)
+4. [Extended Explanation](#extended-explanation) 
+5. [References](#references)
 
 ---
 
@@ -40,7 +41,7 @@ Welcome to **ContraTCR**, a tool designed for training and predicting T-cell rec
 The project consists of several key files and directories:
 
 - `run.py`: Main script to run different modes (`train`, `extract`, `predict`).
-- `config/`: Contains configuration files (e.g., `midterm400_clean.yaml`).
+- `config/`: Contains predefined configuration files (e.g., `midterm400_clean.yaml`).
 - `model.py`: Defines the ESM-2 model and projection head.
 - `data.py`: Data loading and preprocessing utilities.
 - `train.py`: Training routines for different contrastive modes.
@@ -72,7 +73,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 1. **Prepare Your Configuration File**:
 
    - Copy the example configuration file `midterm400_clean.yaml` and rename it (e.g., `your_config.yaml`).
-   - Open `your_config.yaml` and update the hyperparameters
+   - Open `your_config.yaml` and update the hyperparameters as desired. 
    
 2. **Run Training**:
 
@@ -81,7 +82,7 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
 3. **Monitor Training**:
 
-   - Training logs will be printed to the console and saved in the log directory specified in your configuration.
+   - Training logs will be printed to the console and saved in the log directory specified in your configuration file.
    - Model checkpoints will be saved in the checkpoint directory.
 
 
@@ -149,6 +150,16 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
 
    - Execute the command to start training the models and perform predictions.
    - The script will output performance metrics such as precision, recall, F1 score, and ROC AUC.
+
+---
+
+## Extended Explanation
+
+   This repository was created for fullfilment of the term project expectations of Carnegie Mellon University's 11785 - Intro to Deep Learning. 
+   For an in-depth explanation of the novelty, intention, and goals of this project please refer to the following:
+
+   - **Final Report**: [Predicting TCR-Epitope Binding with Fine-Tuned Protein Language Models and Contrastive Learning](https://tobedetermined.com)
+   - **Video Explanation**: [11785 IDL Group 29 Video Report](https://tobedetermined.com)
 
 ---
 
