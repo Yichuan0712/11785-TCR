@@ -7,7 +7,7 @@
 #SBATCH --output=output_final_clean_adp20_predict.log
 
 #SBATCH --time 2-00:00:00 #Time for the job to run
-#SBATCH --job-name ClnP
+#SBATCH --job-name ClnPadp20
 
 ##SBATCH -p requeue
 #SBATCH -p gpu
