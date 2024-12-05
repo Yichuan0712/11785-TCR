@@ -1,15 +1,15 @@
 ================================================================================================================================
 ContraTCR Colab Test
 ================================================================================================================================
-Executed with: python ./run.py--config_path./config/final/final_clean_adapter_20.yaml--train_feature_path./result/final_clean_extract/20241128-06-02-10/feature_data_train.csv--test_feature_path./result/final_clean_extract/20241128-06-02-10/feature_data_test.csv--modepredict--result_path./result/final_clean_predict/
+Executed with: python ./run.py--config_path./config/final/final_clean_adapter_20_2.yaml--train_feature_path./result/final_clean_extract/20241204-16-53-18/feature_data_train.csv--test_feature_path./result/final_clean_extract/20241204-16-53-18/feature_data_test.csv--modepredict--result_path./result/final_clean_predict/
 ================================================================================================================================
-Result Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241201-00-02-41
-Checkpoint Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241201-00-02-41/checkpoint
-Log Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241201-00-02-41/loginfo.log
-Config Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241201-00-02-41/final_clean_adapter_20.yaml
+Result Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241204-17-03-24
+Checkpoint Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241204-17-03-24/checkpoint
+Log Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241204-17-03-24/loginfo.log
+Config Directory: /mnt/pixstor/data/yz3qt/11785-TCR/result/final_clean_predict/20241204-17-03-24/final_clean_adapter_20_2.yaml
 Current Working Directory: /mnt/pixstor/data/yz3qt/11785-TCR
 ================================================================================================================================
-#### final_clean_adapter_20.yaml ####
+#### final_clean_adapter_20_2.yaml ####
     #fix_seed: 42
     description: "ContraTCR Colab Test"
     dataset: "PyTDC"
@@ -20,6 +20,7 @@ Current Working Directory: /mnt/pixstor/data/yz3qt/11785-TCR
                   # "Regular"
     batch_size: 192  # 192
     epochs: 34400  # 86 * 400
+    stop_epoch: 99999
     max_learning_rate: 3e-4
     min_learning_rate: 0
     
@@ -74,3 +75,97 @@ Current Working Directory: /mnt/pixstor/data/yz3qt/11785-TCR
     drop_out: 0.1
 ================================================================================================================================
 XGBoost model training & binding specificity prediction
+Accuracy on test data: 0.7136
+AUROC on test data: 0.7753
+AUPR on test data: 0.7558
+F1 Score on test data: 0.7182
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.71      0.70      0.71      2335
+           1       0.71      0.72      0.72      2383
+
+    accuracy                           0.71      4718
+   macro avg       0.71      0.71      0.71      4718
+weighted avg       0.71      0.71      0.71      4718
+
+================================================================================================================================
+XGBoost model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.7196
+AUROC on test data: 0.7821
+AUPR on test data: 0.7632
+F1 Score on test data: 0.7247
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.72      0.71      0.71      2335
+           1       0.72      0.73      0.72      2383
+
+    accuracy                           0.72      4718
+   macro avg       0.72      0.72      0.72      4718
+weighted avg       0.72      0.72      0.72      4718
+
+================================================================================================================================
+MLP model training & binding specificity prediction
+Accuracy on test data: 0.7238
+AUROC on test data: 0.7844
+AUPR on test data: 0.7577
+F1 Score on test data: 0.7348
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.74      0.69      0.71      2335
+           1       0.71      0.76      0.73      2383
+
+    accuracy                           0.72      4718
+   macro avg       0.72      0.72      0.72      4718
+weighted avg       0.72      0.72      0.72      4718
+
+================================================================================================================================
+MLP model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.7189
+AUROC on test data: 0.7811
+AUPR on test data: 0.7535
+F1 Score on test data: 0.7208
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.71      0.72      0.72      2335
+           1       0.72      0.72      0.72      2383
+
+    accuracy                           0.72      4718
+   macro avg       0.72      0.72      0.72      4718
+weighted avg       0.72      0.72      0.72      4718
+
+================================================================================================================================
+CNN model training & binding specificity prediction
+Accuracy on test data: 0.7245
+AUROC on test data: 0.7869
+AUPR on test data: 0.7630
+F1 Score on test data: 0.7269
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.72      0.72      0.72      2335
+           1       0.73      0.73      0.73      2383
+
+    accuracy                           0.72      4718
+   macro avg       0.72      0.72      0.72      4718
+weighted avg       0.72      0.72      0.72      4718
+
+================================================================================================================================
+CNN model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.7213
+AUROC on test data: 0.7898
+AUPR on test data: 0.7688
+F1 Score on test data: 0.7193
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.71      0.74      0.72      2335
+           1       0.73      0.71      0.72      2383
+
+    accuracy                           0.72      4718
+   macro avg       0.72      0.72      0.72      4718
+weighted avg       0.72      0.72      0.72      4718
+
