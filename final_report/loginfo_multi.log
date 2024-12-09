@@ -1,0 +1,171 @@
+================================================================================================================================
+ContraTCR Colab Test
+================================================================================================================================
+Executed with: python ./run.py--config_path./config/final/final_multi_regular_lora_33_3.yaml--train_feature_path/content/11785-TCR/result/final_multi_extract/20241209-05-41-17/feature_data_train.csv--test_feature_path/content/11785-TCR/result/final_multi_extract/20241209-05-41-17/feature_data_test.csv--modepredict
+================================================================================================================================
+Result Directory: /content/11785-TCR/result/default/20241209-05-49-32
+Checkpoint Directory: /content/11785-TCR/result/default/20241209-05-49-32/checkpoint
+Log Directory: /content/11785-TCR/result/default/20241209-05-49-32/loginfo.log
+Config Directory: /content/11785-TCR/result/default/20241209-05-49-32/final_multi_regular_lora_33_3.yaml
+Current Working Directory: /content/11785-TCR
+================================================================================================================================
+#### final_multi_regular_lora_33_3.yaml ####
+    #fix_seed: 42
+    description: "ContraTCR Colab Test"
+    dataset: "PyTDC"
+    tcr_embedding_source: "BindingSite"
+              # "Full"
+    batch_mode: "Regular"
+                  # "ByEpitope"
+                  # "Regular"
+    batch_size: 48  # 192
+    epochs: 400
+    stop_epoch: 300
+    max_learning_rate: 3e-4
+    min_learning_rate: 0
+    
+    optimizer_beta1: 0.9
+    optimizer_beta2: 0.999
+    optimizer_weight_decay: 0.0005
+    optimizer_eps: 1e-16
+    
+    scheduler_first_cycle_steps: 100
+    scheduler_warmup_epochs: 0
+    scheduler_gamma: 1
+    
+    contrastive_mode: "MultiPosNeg"
+                      # "Triplet"
+                      # "MultiPosNeg"
+    n_pos: 3
+    n_neg: 8
+    temp: 0.1
+    
+    negative_sampling_mode: "ExcludePos"
+                            # "ExcludePos"
+                            # "RandomNeg"
+                            # "HardNeg"
+    hard_neg_mining_sample_num: 1
+    hard_neg_mining_adaptive_rate: 2
+    
+    encoder_name:  esm2_t33_650M_UR50D
+                    # esm2_t36_3B_UR50D,
+                    # esm2_t33_650M_UR50D,
+                    # esm2_t30_150M_UR50D,
+                    # esm2_t12_35M_UR50D,
+                    # esm2_t6_8M_UR50D,
+    tune_ESM_table: False
+    fine_tuning:
+      enable: False
+      unfix_last_layer: 4
+    adapter_h:
+      enable: False
+      num_end_adapter_layers: 12
+      module_type: "MLP1"
+    lora:
+      enable: True
+      esm_num_end_lora: 33
+      r: 8
+      alpha: 32
+      dropout: 0.05
+    
+    
+    projection_head_name: "LayerNorm"
+    hidden_dim: 512
+    out_dim: 128
+    drop_out: 0.1
+================================================================================================================================
+XGBoost model training & binding specificity prediction
+Accuracy on test data: 0.8039
+AUROC on test data: 0.8737
+AUPR on test data: 0.8568
+F1 Score on test data: 0.8209
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.86      0.72      0.78      2335
+           1       0.76      0.89      0.82      2383
+
+    accuracy                           0.80      4718
+   macro avg       0.81      0.80      0.80      4718
+weighted avg       0.81      0.80      0.80      4718
+
+================================================================================================================================
+XGBoost model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.8114
+AUROC on test data: 0.8817
+AUPR on test data: 0.8611
+F1 Score on test data: 0.8253
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.86      0.74      0.80      2335
+           1       0.78      0.88      0.83      2383
+
+    accuracy                           0.81      4718
+   macro avg       0.82      0.81      0.81      4718
+weighted avg       0.82      0.81      0.81      4718
+
+================================================================================================================================
+MLP model training & binding specificity prediction
+Accuracy on test data: 0.7721
+AUROC on test data: 0.8529
+AUPR on test data: 0.8440
+F1 Score on test data: 0.7754
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.77      0.77      0.77      2335
+           1       0.77      0.78      0.78      2383
+
+    accuracy                           0.77      4718
+   macro avg       0.77      0.77      0.77      4718
+weighted avg       0.77      0.77      0.77      4718
+
+================================================================================================================================
+MLP model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.7772
+AUROC on test data: 0.8417
+AUPR on test data: 0.8354
+F1 Score on test data: 0.7776
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.77      0.78      0.78      2335
+           1       0.78      0.77      0.78      2383
+
+    accuracy                           0.78      4718
+   macro avg       0.78      0.78      0.78      4718
+weighted avg       0.78      0.78      0.78      4718
+
+================================================================================================================================
+CNN model training & binding specificity prediction
+Accuracy on test data: 0.7991
+AUROC on test data: 0.8741
+AUPR on test data: 0.8573
+F1 Score on test data: 0.8065
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.82      0.77      0.79      2335
+           1       0.79      0.83      0.81      2383
+
+    accuracy                           0.80      4718
+   macro avg       0.80      0.80      0.80      4718
+weighted avg       0.80      0.80      0.80      4718
+
+================================================================================================================================
+CNN model training & binding specificity prediction - with additional SMI features
+Accuracy on test data: 0.8052
+AUROC on test data: 0.8825
+AUPR on test data: 0.8665
+F1 Score on test data: 0.8171
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.84      0.75      0.79      2335
+           1       0.78      0.86      0.82      2383
+
+    accuracy                           0.81      4718
+   macro avg       0.81      0.80      0.80      4718
+weighted avg       0.81      0.81      0.80      4718
+
