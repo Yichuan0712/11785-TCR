@@ -158,8 +158,8 @@ The project operates in three primary modes: `train`, `extract`, and `predict`. 
    This repository was created for fullfilment of the term project expectations of Carnegie Mellon University's 11785 - Intro to Deep Learning. 
    For an in-depth explanation of the novelty, intention, and goals of this project please refer to the following:
 
-   - **Final Report**: [Predicting TCR-Epitope Binding with Fine-Tuned Protein Language Models and Contrastive Learning](https://tobedetermined.com)
-   - **Video Explanation**: [11785 IDL Group 29 Video Report](https://tobedetermined.com)
+   - **Final Report**: [Predicting TCR-Epitope Binding with Fine-Tuned Protein Language Models and Contrastive Learning](https://github.com/Yichuan0712/11785-TCR/tree/main/final_report/11785report.pdf)
+   - **Video Explanation**: [11785 IDL Group 29 Video Report](https://www.youtube.com/watch?v=CmsnBlBCdzY)
 
 ---
 
